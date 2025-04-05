@@ -93,3 +93,16 @@ export const verifyEmail = async (verifyEmailToken: any): Promise<IUserDoc | nul
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
   }
 };
+
+/**
+ * Get current authenticated user
+ */
+export const getUserProfile = async (userId: string): Promise<IUserDoc | null> => {
+  try {
+    const user = await getUserById(new mongoose.Types.ObjectId(userId));
+    if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    return user;
+  } catch (error) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+  }
+};

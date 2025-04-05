@@ -51,3 +51,5 @@ export const verifyEmail = {
     token: Joi.string().required(),
   }),
 };
+
+export const getCurrentUser = {};

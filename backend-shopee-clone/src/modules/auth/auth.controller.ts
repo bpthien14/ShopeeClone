@@ -50,3 +50,8 @@ export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
   res.status(httpStatus.NO_CONTENT).send();
 });
+
+export const getCurrentUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await authService.getUserProfile((req.user as any).id);
+  res.status(httpStatus.OK).json({ user });
+});

@@ -51,8 +51,12 @@ export const register = async (params: RegisterParams) => {
 };
 
 export const logoutAccount = async () => {
-  const response = await axiosInstance.post('/auth/logout');
-  return response.data;
+  const refreshToken = Cookies.get(refreshTokenName);
+  Cookies.remove(accessTokenName);
+  Cookies.remove(refreshTokenName);
+  await axiosInstance.post(URL_LOGOUT, { refreshToken });
+
+
 };
 
 export const getCurrentUser = async () => {

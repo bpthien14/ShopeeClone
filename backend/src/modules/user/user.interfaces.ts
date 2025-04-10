@@ -5,6 +5,8 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces';
 export interface IUser {
   name: string;
   email: string;
+  phoneNumber: string;
+  avatar: string;
   password: string;
   role: string;
   isEmailVerified: boolean;

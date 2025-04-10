@@ -22,9 +22,13 @@ export interface UserPopoverProps {
   open: boolean;
 }
 
-export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
-  const { checkSession } = useUser();
+interface UserPopoverData {
+  name: string;
+  email: string;
+}
 
+export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
+  const { checkSession, user } = useUser();
   const router = useRouter();
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
@@ -38,6 +42,14 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
     // After refresh, AuthGuard will handle the redirect
   }, [checkSession, router]);
 
+  const userPopoverData: UserPopoverData = {
+    name: '',
+    email: '',
+  };
+  const [popupData, setPopupData] = React.useState<UserPopoverData>({
+    name: user?.name || '',
+    email: user?.email || '',
+  });
   return (
     <Popover
       anchorEl={anchorEl}
@@ -47,9 +59,9 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       slotProps={{ paper: { sx: { width: '240px' } } }}
     >
       <Box sx={{ p: '16px 20px ' }}>
-        <Typography variant="subtitle1">Sofia Rivers</Typography>
+        <Typography variant="subtitle1">{popupData.name}</Typography>
         <Typography color="text.secondary" variant="body2">
-          sofia.rivers@devias.io
+          {popupData.email}
         </Typography>
       </Box>
       <Divider />

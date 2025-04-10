@@ -1,7 +1,7 @@
 import { User } from '@/types/user';
 
-export const accessTokenName = 'accessToken';
-export const refreshTokenName = 'refreshToken';
+export const accessTokenName = process.env.NEXT_PUBLIC_ACCESS_TOKEN_NAME || 'accessToken';
+export const refreshTokenName = process.env.NEXT_PUBLIC_REFRESH_TOKEN_NAME || 'refreshToken';
 
 export interface AuthResponse {
   tokens: {

@@ -10,11 +10,19 @@ export interface UserContextValue {
   user: User | null;
   error: string | null;
   isLoading: boolean;
-  checkSession?: () => Promise<void>;
-  setUser: (user: User) => void
+  checkSession: () => Promise<void>;
+  setUser: (user: User) => void;
 }
 
-export const UserContext = React.createContext<UserContextValue | undefined>(undefined);
+const defaultContextValue: UserContextValue = {
+  user: null,
+  error: null,
+  isLoading: true,
+  checkSession: async () => {},
+  setUser: () => {}
+};
+
+export const UserContext = React.createContext<UserContextValue>(defaultContextValue);
 
 export interface UserProviderProps {
   children: React.ReactNode;
@@ -44,20 +52,26 @@ export function UserProvider({ children }: UserProviderProps): React.JSX.Element
     }
   }, []);
 
-  const setUser = (user : User) => {
+  const setUser = (user: User) => {
     setState({
-      user, error : null, isLoading : false
-    })
-  }
+      user,
+      error: null,
+      isLoading: false
+    });
+  };
+
   React.useEffect(() => {
     checkSession().catch((err: unknown) => {
       logger.error(err);
       // noop
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, []);
+  }, [checkSession]);
 
-  return <UserContext.Provider value={{ ...state, checkSession, setUser}}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={{ ...state, checkSession, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export const UserConsumer = UserContext.Consumer;

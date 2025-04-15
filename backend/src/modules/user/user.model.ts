@@ -1,9 +1,9 @@
+import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import validator from 'validator';
-import bcrypt from 'bcryptjs';
-import toJSON from '../toJSON/toJSON';
-import paginate from '../paginate/paginate';
 import { roles } from '../../config/roles';
+import paginate from '../paginate/paginate';
+import toJSON from '../toJSON/toJSON';
 import { IUserDoc, IUserModel } from './user.interfaces';
 
 const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
@@ -40,11 +40,32 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     role: {
       type: String,
       enum: roles,
-      default: 'user',
+      default: 'customer',
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    photoUrl: {
+      type: String,
     },
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+    shop: {
+      name: {
+        type: String,
+      },
+    },
+    customerClass: {
+      type: String,
+    },
+    amountPaid: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
   {

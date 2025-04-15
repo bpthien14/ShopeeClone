@@ -9,24 +9,20 @@ function generateToken(): string {
   return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-// const user = {
-//   id: 'USR-000',
-//   avatar: '/assets/avatar.png',
-//   firstName: 'Sofia',
-//   lastName: 'Rivers',
-//   email: 'sofia@devias.io',
-// } satisfies User;
-
 export interface SignUpParams {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
+  phoneNumber:string
+  role: 'merchant' | 'customer';
+  isEmailVerified: boolean;
+  shop?: {
+    name: string;
+  };
+  customerClass?: string;
+  amountPaid: number;
 }
 
-export interface SignInWithOAuthParams {
-  provider: 'google' | 'discord';
-}
 
 export interface SignInWithPasswordParams {
   email: string;
@@ -48,9 +44,6 @@ class AuthClient {
     return {};
   }
 
-  async signInWithOAuth(_: SignInWithOAuthParams): Promise<{ error?: string }> {
-    return { error: 'Social authentication not implemented' };
-  }
 
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
     const { email, password } = params;

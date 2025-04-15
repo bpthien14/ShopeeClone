@@ -1,19 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Alert from '@mui/material/Alert';
 
 import { paths } from '@/paths';
-import { logger } from '@/lib/default-logger';
 import { useUser } from '@/hooks/auth/use-user';
 
-export interface AuthGuardProps {
+export interface RoleGuardProps {
   children: React.ReactNode;
 }
 
-export function AuthGuard({ children }: AuthGuardProps): React.JSX.Element | null {
+export function RoleGuard({ children }: RoleGuardProps): React.JSX.Element | null {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, error, isLoading } = useUser();
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 
@@ -27,10 +27,15 @@ export function AuthGuard({ children }: AuthGuardProps): React.JSX.Element | nul
       return;
     }
 
-    if (!user) {
-      logger.debug('[AuthGuard]: User is not logged in, redirecting to sign in');
-      router.replace(paths.auth.signIn);
-      return;
+    if (user) {
+      if (user.role === 'merchant' && pathname?.startsWith('/customer')) {
+        router.replace(paths.merchant.dashboard);
+      } else if (user.role === 'customer' && pathname?.startsWith('/merchant')) {
+        router.replace(paths.customer.dashboard);
+      } else {
+        router.replace(user.role === 'merchant' ? paths.merchant.dashboard : paths.customer.dashboard);
+      }
+      // return;
     }
 
     setIsChecking(false);

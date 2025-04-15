@@ -1,12 +1,19 @@
 import Joi from 'joi';
 import { password, objectId } from '../validate/custom.validation';
 import { NewCreatedUser } from './user.interfaces';
+import { roles } from '../../config/roles';
 
 const createUserBody: Record<keyof NewCreatedUser, any> = {
   email: Joi.string().required().email(),
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
-  role: Joi.string().required().valid('user', 'admin'),
+  phoneNumber: Joi.string().required(),
+  role: Joi.string().valid(roles[0], roles[1]).default(roles[1]),
+  shop: Joi.object({
+    name: Joi.string().required(),
+  }).optional(),
+  customerClass: Joi.string().optional(),
+  amountPaid: Joi.number().default(0),
 };
 
 export const createUser = {
@@ -37,8 +44,13 @@ export const updateUser = {
   body: Joi.object()
     .keys({
       email: Joi.string().email(),
-      password: Joi.string().custom(password),
       name: Joi.string(),
+      phoneNumber: Joi.string(),
+      photoUrl: Joi.string(),
+      role: Joi.string().valid(roles[0], roles[1]),
+      shop: Joi.object({
+        name: Joi.string(),
+      }).optional(),
     })
     .min(1),
 };

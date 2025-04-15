@@ -19,7 +19,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
 import { paths } from '@/paths';
-import { useUser } from '@/hooks/use-user';
+import { useUser } from '@/hooks/auth/use-user';
 import { loginAccount } from '@/apis/auth.api';
 
 const schema = zod.object({
@@ -29,7 +29,7 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'sofia@devias.io', password: 'Secret1' } satisfies Values;
+const defaultValues = { email: '', password: '' } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -126,27 +126,18 @@ export function SignInForm(): React.JSX.Element {
               </FormControl>
             )}
           />
-          <div>
+          {/* <div>
             <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
               Forgot password?
             </Link>
-          </div>
+          </div> */}
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
           <Button disabled={isPending} type="submit" variant="contained">
             Sign in
           </Button>
         </Stack>
       </form>
-      <Alert color="warning">
-        Use{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          sofia@devias.io
-        </Typography>{' '}
-        with password{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          Secret1
-        </Typography>
-      </Alert>
+
     </Stack>
   );
 }

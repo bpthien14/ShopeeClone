@@ -13,6 +13,7 @@ router.post('/reset-password', validate(authValidation.resetPassword), authContr
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
 router.post('/get-current-user', auth(), authController.getCurrentUser);
+router.post('/update-profile',auth(), validate(authValidation.updateProfile), authController.updateProfile);
 
 export default router;
 

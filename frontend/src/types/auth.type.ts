@@ -18,10 +18,16 @@ export interface AuthResponse {
 }
 
 export interface SignUpRequest {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
+  role: 'merchant' | 'customer';
+  phoneNumber: string;
+  shop?: {
+    name: string;
+  };
+  customerClass?: string;
+  amountPaid: number;
 }
 
 export interface SignInRequest {
@@ -43,4 +49,13 @@ export interface ForgotPasswordRequest {
 
 export interface GetUserRequest {
   accessToken: string;
+}
+
+export interface UpdateProfileRequest {
+  name: string;
+  phoneNumber: string;
+  photoUrl?: string;
+  shop?: {
+    name: string;
+  };
 }

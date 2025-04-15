@@ -5,7 +5,7 @@ export const paths = {
   merchant:{
     dashboard: '/merchant/dashboard',
     // products: '/merchant/dashboard/products',
-    // orders: '/merchant/dashboard/orders',
+    orders: '/merchant/dashboard/orders',
     account: '/merchant/dashboard/account',
 
   },
@@ -18,6 +18,7 @@ export const paths = {
     customers: '/dashboard/customers',
     integrations: '/dashboard/integrations',
     settings: '/dashboard/settings',
+    orders: '/dashboard/orders'
   },
   errors: { notFound: '/errors/not-found' },
 } as const;

@@ -3,6 +3,7 @@ import { paths } from '@/paths';
 
 export const navItems = [
   { key: 'm-overview', title: 'Overview', href: paths.merchant.dashboard, icon: 'chart-pie', role: 'merchant' },
+  { key: 'm-orders', title: 'Orders', href: paths.merchant.orders, icon: 'shopping-bag', role: 'merchant' },
   { key: 'm-account', title: 'Account', href: paths.merchant.account, icon: 'user', role: 'merchant' },
   // { key: 'customers', title: 'Customers', href: paths.dashboard.customers, icon: 'users' },
   // { key: 'integrations', title: 'Integrations', href: paths.dashboard.integrations, icon: 'plugs-connected' },

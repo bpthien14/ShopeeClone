@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import { accessTokenName, refreshTokenName, type AuthResponse } from '@/types/auth.type';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   // timeout: 10000,
   // withCredentials: true,
   headers: {

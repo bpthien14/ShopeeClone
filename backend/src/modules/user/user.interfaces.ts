@@ -8,8 +8,15 @@ export interface IUser {
   phoneNumber: string;
   avatar: string;
   password: string;
-  role: string;
+  role: 'merchant' | 'customer';
+  photoUrl?: string;
+  phoneNumber: string;
   isEmailVerified: boolean;
+  shop?: {
+    name: string;
+  };
+  customerClass?: string;
+  amountPaid: number;
 }
 
 export interface IUserDoc extends IUser, Document {
@@ -23,9 +30,9 @@ export interface IUserModel extends Model<IUserDoc> {
 
 export type UpdateUserBody = Partial<IUser>;
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
+export type NewRegisteredUser = Omit<IUser, 'photoUrl' | 'isEmailVerified'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'>;
+export type NewCreatedUser = Omit<IUser, 'photoUrl' | 'isEmailVerified'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;

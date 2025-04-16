@@ -62,7 +62,7 @@ const refreshToken = async () => {
 
 // Add auth token to requests
 axiosInstance.interceptors.request.use(
-  async (config) => {
+  (config) => {
     const token = Cookies.get(accessTokenName);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

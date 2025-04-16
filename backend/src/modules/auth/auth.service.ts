@@ -4,8 +4,9 @@ import Token from '../token/token.model';
 import ApiError from '../errors/ApiError';
 import tokenTypes from '../token/token.types';
 import { getUserByEmail, getUserById, updateUserById } from '../user/user.service';
-import { IUserDoc, IUserWithTokens } from '../user/user.interfaces';
+import { IUserDoc, IUserWithTokens, UpdateUserBody } from '../user/user.interfaces';
 import { generateAuthTokens, verifyToken } from '../token/token.service';
+import { User } from '../user';
 
 /**
  * Login with username and password
@@ -105,4 +106,26 @@ export const getUserProfile = async (userId: string): Promise<IUserDoc | null> =
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
   }
+};
+
+/**
+ * Update profile
+ * @param {mongoose.Types.ObjectId} userId
+ * @param {UpdateUserBody} updateBody
+ * @returns {Promise<IUserDoc | null>}
+ */
+export const updateProfile = async (
+  userId: mongoose.Types.ObjectId,
+  updateBody: UpdateUserBody
+): Promise<IUserDoc | null> => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  }
+  Object.assign(user, updateBody);
+  await user.save();
+  return user;
 };

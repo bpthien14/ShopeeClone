@@ -9,10 +9,13 @@ import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr/Arrow
 
 import { config } from '@/config';
 import { paths } from '@/paths';
+import { useUser } from '@/hooks/auth/use-user';
 
 export const metadata = { title: `Not found | Errors | ${config.site.name}` } satisfies Metadata;
 
 export default function NotFound(): React.JSX.Element {
+  const { user } = useUser();
+
   return (
     <Box component="main" sx={{ alignItems: 'center', display: 'flex', justifyContent: 'center', minHeight: '100%' }}>
       <Stack spacing={3} sx={{ alignItems: 'center', maxWidth: 'md' }}>
@@ -32,7 +35,7 @@ export default function NotFound(): React.JSX.Element {
         </Typography>
         <Button
           component={RouterLink}
-          href={paths.home}
+          href={user?.role === 'customer' ? paths.customer.dashboard : paths.merchant.dashboard}
           startIcon={<ArrowLeftIcon fontSize="var(--icon-fontSize-md)" />}
           variant="contained"
         >

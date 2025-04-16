@@ -55,3 +55,8 @@ export const getCurrentUser = catchAsync(async (req: Request, res: Response) => 
   const user = await authService.getUserProfile((req.user as any).id);
   res.status(httpStatus.OK).json({ user });
 });
+
+export const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = await authService.updateProfile((req.user as any).id, req.body);
+  res.status(httpStatus.OK).json({ user });
+});

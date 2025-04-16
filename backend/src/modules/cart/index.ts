@@ -4,7 +4,8 @@ export {
   getCart, 
   updateCartItem,
   removeFromCart,
-  clearCart
+  clearCart,
+  checkoutCart
 } from './cart.controller';
 
 // Export service functions with aliases to avoid naming conflicts

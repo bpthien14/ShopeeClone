@@ -1,4 +1,5 @@
 import axiosInstance from './axios';
+import { Order } from './order.api';
 
 export interface CartItem {
   productId: string;
@@ -12,6 +13,19 @@ export interface Cart {
   userId: string;
   items: CartItem[];
   totalAmount: number;
+}
+
+// Add interface for checkout data
+export interface CheckoutData {
+  customerName: string;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  paymentMethod: 'cod' | 'card' | 'banking';
 }
 
 export const getCart = async () => {
@@ -31,5 +45,10 @@ export const removeFromCart = async (productId: string) => {
 
 export const updateCartItemQuantity = async (productId: string, quantity: number) => {
   const response = await axiosInstance.patch<Cart>(`/cart/${productId}`, { quantity });
+  return response.data;
+};
+
+export const checkoutCart = async (checkoutData: CheckoutData): Promise<Order> => {
+  const response = await axiosInstance.post<Order>('/cart/checkout', checkoutData);
   return response.data;
 };

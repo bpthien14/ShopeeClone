@@ -39,10 +39,25 @@ const clearCart = {
   }),
 };
 
+const checkout = {
+  body: Joi.object().keys({
+    customerName: Joi.string().required(),
+    shippingAddress: Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      state: Joi.string().required(),
+      zipCode: Joi.string().required(),
+      country: Joi.string().required(),
+    }).required(),
+    paymentMethod: Joi.string().valid('cod', 'card', 'banking').required(),
+  }),
+};
+
 export const cartValidation = {
   addToCart,
   getCart,
   updateCartItem,
   removeFromCart,
   clearCart,
+  checkout,
 };

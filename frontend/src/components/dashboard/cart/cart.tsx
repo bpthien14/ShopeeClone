@@ -15,13 +15,32 @@ import {
 } from '@mui/material';
 import { Trash, Plus, Minus } from '@phosphor-icons/react';
 import { useCart } from '@/contexts/cart-context';
+import { CheckoutDialog } from './checkout-dialog';
+import { checkoutCart, type CheckoutData } from '@/apis/cart.api';
+import { useRouter } from 'next/navigation';
 
 export function Cart() {
+  const router = useRouter();
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false);
   const { cart, loading, error, removeItem, updateItemQuantity, fetchCart } = useCart();
   
   React.useEffect(() => {
     void fetchCart();
   }, [fetchCart]);
+
+  const handleCheckout = async (checkoutData: CheckoutData) => {
+    try {
+      const order = await checkoutCart(checkoutData);
+      // Refresh cart after successful checkout
+      await fetchCart();
+      // Close checkout dialog
+      setCheckoutOpen(false);
+      // Redirect to order confirmation page
+      router.push(`/customer/dashboard/orders/${order._id}`);
+    } catch (err) {
+      console.error('Checkout failed:', err);
+    }
+  };
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -105,10 +124,19 @@ export function Cart() {
         </TableBody>
       </Table>
       <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" color="primary">
+        <Button 
+          variant="contained" 
+          color="primary"
+          onClick={() => { setCheckoutOpen(true); }}
+        >
           Proceed to Checkout
         </Button>
       </Box>
+      <CheckoutDialog
+        open={checkoutOpen}
+        onClose={() => { setCheckoutOpen(false); }}
+        onCheckout={handleCheckout}
+      />
     </Box>
   );
 }

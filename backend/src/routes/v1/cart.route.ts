@@ -8,6 +8,7 @@ import {
   updateCartItem,
   removeFromCart,
   clearCart,
+  checkoutCart,
 } from '../../modules/cart';
 
 const router: Router = express.Router();
@@ -23,6 +24,8 @@ router
   .delete(auth(), validate(cartValidation.removeFromCart), removeFromCart);
 
 router.post('/clear', auth(), validate(cartValidation.clearCart), clearCart);
+
+router.post('/checkout', auth(), validate(cartValidation.checkout), checkoutCart);
 
 router
   .route('/me')

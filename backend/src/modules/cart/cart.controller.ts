@@ -5,6 +5,7 @@ import catchAsync from '../utils/catchAsync';
 import * as cartService from './cart.service';
 import ApiError from '../errors/ApiError';
 import { IUserDoc } from '../user/user.interfaces';
+import * as orderService from '../order/order.service';
 
 interface CustomRequest extends Request {
   user?: IUserDoc;
@@ -73,4 +74,33 @@ export const clearCart = catchAsync(async (req: CustomRequest, res: Response) =>
 
   const cart = await cartService.clearCart(req.user._id);
   res.status(httpStatus.OK).send(cart);
+});
+
+export const checkoutCart = catchAsync(async (req: CustomRequest, res: Response) => {
+  if (!req.user?._id) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'User not authenticated');
+  }
+
+  const cart = await cartService.getCart(req.user._id);
+  if (!cart || cart.items.length === 0) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Cart is empty');
+  }
+
+  // Create order from cart
+  const order = await orderService.createOrder({
+    userId: req.user._id,
+    customerName: req.body.customerName,
+    items: cart.items,
+    totalAmount: cart.totalAmount,
+    shippingAddress: req.body.shippingAddress,
+    paymentMethod: req.body.paymentMethod,
+    status: 'pending',
+    paymentStatus: 'pending',
+    orderDate: new Date(),
+  });
+
+  // Clear the cart after successful order creation
+  await cartService.clearCart(req.user._id);
+
+  res.status(httpStatus.CREATED).send(order);
 });

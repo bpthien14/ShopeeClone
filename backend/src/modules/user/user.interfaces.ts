@@ -6,11 +6,9 @@ export interface IUser {
   name: string;
   email: string;
   phoneNumber: string;
-  avatar: string;
   password: string;
   role: 'merchant' | 'customer';
   photoUrl?: string;
-  phoneNumber: string;
   isEmailVerified: boolean;
   shop?: {
     name: string;

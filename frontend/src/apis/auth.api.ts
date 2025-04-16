@@ -15,11 +15,6 @@ export const URL_REGISTER = process.env.NEXT_PUBLIC_API_REGISTER || '/auth/regis
 export const URL_LOGOUT = process.env.NEXT_PUBLIC_API_LOGOUT || '/auth/logout';
 export const URL_REFRESH_TOKEN = process.env.NEXT_PUBLIC_API_REFRESH_TOKEN || '/auth/refresh-tokens';
 export const URL_GET_CURRENT_USER = process.env.NEXT_PUBLIC_API_GET_CURRENT_USER || '/auth/get-current-user';
-export const URL_LOGIN = '/auth/login';
-export const URL_REGISTER = '/auth/register';
-export const URL_LOGOUT = '/auth/logout';
-export const URL_REFRESH_TOKEN = '/auth/refresh-tokens';
-export const URL_GET_CURRENT_USER = '/auth/get-current-user';
 export const URL_UPDATE_PROFILE = '/auth/update-profile';
 
 export const loginAccount = async (body: { email: string; password: string }) => {
@@ -38,17 +33,6 @@ export const loginAccount = async (body: { email: string; password: string }) =>
   return res.data;
 };
 
-export interface RegisterParams {
-  name: string;
-  email: string;
-  password: string;
-}
-
-export const register = async (params: RegisterParams) => {
-  const response = await axiosInstance.post<AuthResponse>(URL_REGISTER, params);
-  
-  // Store tokens in cookies
-  Cookies.set(accessTokenName, response.data.tokens.access.token, {
 export const registerAccount = async (body: SignUpRequest) => {
   const res = await axiosInstance.post<AuthResponse>(URL_REGISTER, body);
   // Store tokens in cookies
@@ -56,14 +40,10 @@ export const registerAccount = async (body: SignUpRequest) => {
     secure: true,
     sameSite: 'strict',
   });
-
-  Cookies.set(refreshTokenName, response.data.tokens.refresh.token, {
   Cookies.set(refreshTokenName, res.data.tokens.refresh.token, {
     secure: true,
     sameSite: 'strict',
   });
-
-  return response.data;
   return res.data;
 };
 
@@ -76,10 +56,6 @@ export const logoutAccount = async () => {
 
 };
 
-export const getCurrentUser = async () => {
-  const response = await axiosInstance.post('/auth/get-current-user');
-  return response.data;
-};
 
 export const getCurrentUser = async () => {
   const res = await axiosInstance.post<AuthResponse>(URL_GET_CURRENT_USER);

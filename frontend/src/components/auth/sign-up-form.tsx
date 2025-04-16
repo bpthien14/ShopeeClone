@@ -26,6 +26,8 @@ const roleOptions = ['merchant', 'customer'] as const;
 const schema = zod.object({
   name: zod.string().min(1, { message: 'Name is required' }),
   email: zod.string().min(1, { message: 'Email is required' }).email(),
+  password: zod.string().min(8, { message: 'Password should be at least 8 characters' }),
+  terms: zod.boolean().refine((value) => value, 'You must accept the terms and conditions'),
   password: zod.string().min(6, { message: 'Password should be at least 6 characters' }),
   role: zod.enum(roleOptions),
   phoneNumber: zod.string().min(1, { message: 'Phone number is required' }),

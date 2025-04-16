@@ -6,6 +6,7 @@ import * as cartService from './cart.service';
 import ApiError from '../errors/ApiError';
 import { IUserDoc } from '../user/user.interfaces';
 import * as orderService from '../order/order.service';
+import { OrderStatus } from '../order/order.interfaces';
 
 interface CustomRequest extends Request {
   user?: IUserDoc;
@@ -86,17 +87,28 @@ export const checkoutCart = catchAsync(async (req: CustomRequest, res: Response)
     throw new ApiError(httpStatus.BAD_REQUEST, 'Cart is empty');
   }
 
+  const now = new Date();
+
+  // Transform cart items to order items format
+  const orderItems = cart.items.map(item => ({
+    product: item.productId,
+    name: item.productName,
+    photoUrls: [], // You might want to fetch this from the product service
+    quantity: item.quantity.toString(),
+    unitPrice: item.price.toString()
+  }));
+
   // Create order from cart
   const order = await orderService.createOrder({
-    userId: req.user._id,
-    customerName: req.body.customerName,
-    items: cart.items,
-    totalAmount: cart.totalAmount,
+    merchant: new mongoose.Types.ObjectId(), // You need to get the merchant ID from the product
+    customerId: req.user._id,
+    items: orderItems,
+    discountAmount: 0,
+    shippingAmount: 0,
     shippingAddress: req.body.shippingAddress,
-    paymentMethod: req.body.paymentMethod,
-    status: 'pending',
-    paymentStatus: 'pending',
-    orderDate: new Date(),
+    status: OrderStatus.PENDING,
+    createdAt: now,
+    updatedAt: now
   });
 
   // Clear the cart after successful order creation

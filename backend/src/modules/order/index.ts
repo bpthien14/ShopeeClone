@@ -1,3 +1,15 @@
+import * as orderController from './order.controller';
+import * as orderService from './order.service';
+import Order from './order.model';
+import { orderValidation } from './order.validation';
+
+export {
+  Order,
+  orderController,
+  orderService,
+  orderValidation,
+};
+
 export {
   createOrder,
   getOrders,
@@ -12,7 +24,4 @@ export {
   getOrderById,
   updateOrderStatus,
   deleteOrder as deleteOrderService,
-} from './order.service';
-
-export { default as Order } from './order.model';
-export { orderValidation } from './order.validation'; 
+} from './order.service'; 

@@ -18,15 +18,26 @@ import {
   MenuItem,
   Box,
   CircularProgress,
+  Typography,
 } from '@mui/material';
 import { PencilSimple } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { Order, OrderParams, getOrders } from '@/apis/order.api';
+import { OrderStatusSelect } from './OrderStatusSelect';
 
-const statusColors: Record<Order['status'], 'default' | 'primary' | 'success' | 'error'> = {
+const statusColors: Record<Order['status'], 'default' | 'primary' | 'warning' | 'info' | 'success'> = {
   pending: 'default',
-  processing: 'primary',
+  approved: 'primary',
+  shipping: 'warning',
+  shipped: 'info',
   completed: 'success',
-  cancelled: 'error',
+};
+
+const statusLabels: Record<Order['status'], string> = {
+  pending: 'Chờ xác nhận',
+  approved: 'Đã xác nhận',
+  shipping: 'Đang giao',
+  shipped: 'Đã giao',
+  completed: 'Hoàn thành',
 };
 
 export function OrderList() {
@@ -37,6 +48,7 @@ export function OrderList() {
   const [status, setStatus] = React.useState<Order['status'] | ''>('');
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [editingOrderId, setEditingOrderId] = React.useState<string | null>(null);
 
   const fetchOrders = React.useCallback(async (params: OrderParams) => {
     try {
@@ -77,6 +89,31 @@ export function OrderList() {
     setPage(0);
   };
 
+  const handleOrderStatusChange = (orderId: string, newStatus: Order['status']) => {
+    const params: OrderParams = {
+      page: page + 1,
+      limit: rowsPerPage,
+      ...(status && { status }),
+    };
+    fetchOrders(params);
+    setEditingOrderId(null);
+  };
+
+  const handleEditClick = (orderId: string) => {
+    setEditingOrderId(orderId);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingOrderId(null);
+  };
+
+  const calculateTotal = (order: Order) => {
+    const itemsTotal = order.items.reduce((sum, item) => {
+      return sum + (Number(item.quantity) * Number(item.unitPrice));
+    }, 0);
+    return itemsTotal - order.discountAmount + order.shippingAmount;
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -97,17 +134,18 @@ export function OrderList() {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ mb: 2 }}>
         <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Status Filter</InputLabel>
+          <InputLabel>Trạng thái</InputLabel>
           <Select
             value={status}
-            label="Status Filter"
+            label="Trạng thái"
             onChange={handleStatusChange}
           >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="processing">Processing</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
-            <MenuItem value="cancelled">Cancelled</MenuItem>
+            <MenuItem value="">Tất cả</MenuItem>
+            <MenuItem value="pending">Chờ xác nhận</MenuItem>
+            <MenuItem value="approved">Đã xác nhận</MenuItem>
+            <MenuItem value="shipping">Đang giao</MenuItem>
+            <MenuItem value="shipped">Đã giao</MenuItem>
+            <MenuItem value="completed">Hoàn thành</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -116,12 +154,13 @@ export function OrderList() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer Name</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Total Amount</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Mã đơn hàng</TableCell>
+              <TableCell>Khách hàng</TableCell>
+              <TableCell>Sản phẩm</TableCell>
+              <TableCell>Tổng tiền</TableCell>
+              <TableCell>Trạng thái</TableCell>
+              <TableCell>Ngày tạo</TableCell>
+              <TableCell align="right">Thao tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -129,21 +168,45 @@ export function OrderList() {
               orders.map((order) => (
                 <TableRow key={order._id}>
                   <TableCell>{order._id}</TableCell>
-                  <TableCell>{order.customerName}</TableCell>
-                  <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                  <TableCell>{order.customerId}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      color={statusColors[order.status]}
-                    />
+                    <Box>
+                      {order.items.map((item, index) => (
+                        <Typography key={index} variant="body2" sx={{ mb: 0.5 }}>
+                          {item.name} x {item.quantity}
+                        </Typography>
+                      ))}
+                    </Box>
                   </TableCell>
-                  <TableCell align="right">
-                    ${order.totalAmount.toFixed(2)}
+                  <TableCell>
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND'
+                    }).format(calculateTotal(order))}
+                  </TableCell>
+                  <TableCell>
+                    {editingOrderId === order._id ? (
+                      <OrderStatusSelect
+                        orderId={order._id}
+                        currentStatus={order.status}
+                        onStatusChange={(newStatus) => handleOrderStatusChange(order._id, newStatus)}
+                        onCancel={handleCancelEdit}
+                      />
+                    ) : (
+                      <Chip
+                        label={statusLabels[order.status]}
+                        color={statusColors[order.status]}
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                   </TableCell>
                   <TableCell align="right">
                     <IconButton
                       size="small"
-                      onClick={() => {/* TODO: Implement edit/view order */}}
+                      onClick={() => handleEditClick(order._id)}
+                      disabled={editingOrderId === order._id}
                     >
                       <PencilSimple />
                     </IconButton>
@@ -152,8 +215,8 @@ export function OrderList() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No orders found
+                <TableCell colSpan={7} align="center">
+                  Không có đơn hàng nào
                 </TableCell>
               </TableRow>
             )}
@@ -167,6 +230,10 @@ export function OrderList() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Số dòng mỗi trang"
+          labelDisplayedRows={({ from, to, count }) => 
+            `${from}-${to} trên ${count !== -1 ? count : `hơn ${to}`}`
+          }
         />
       </TableContainer>
     </Box>

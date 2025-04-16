@@ -1,31 +1,32 @@
 import { Document, Model, Types } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
-export interface IOrderItem {
-  productId: Types.ObjectId;
-  productName: string;
-  quantity: number;
-  price: number;
+export enum OrderStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  SHIPPING = 'shipping',
+  SHIPPED = 'shipped',
+  COMPLETED = 'completed',
 }
 
-export interface IShippingAddress {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+export interface IOrderItem {
+  product: Types.ObjectId;
+  name: string;
+  photoUrls: string[];
+  quantity: string;
+  unitPrice: string;
 }
 
 export interface IOrder {
-  userId: Types.ObjectId;
-  customerName: string;
-  orderDate: Date;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  merchant: Types.ObjectId;
+  customerId: Types.ObjectId;
   items: IOrderItem[];
-  totalAmount: number;
-  shippingAddress?: IShippingAddress;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  paymentMethod: 'cod' | 'card' | 'banking';
+  discountAmount: number;
+  shippingAmount: number;
+  shippingAddress: string;
+  status: OrderStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IOrderDoc extends IOrder, Document {}

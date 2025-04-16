@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Order from './order.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { IOrder, IOrderDoc } from './order.interfaces';
+import { IOrder, IOrderDoc, OrderStatus } from './order.interfaces';
 
 /**
  * Create an order
@@ -34,18 +34,49 @@ export const getOrderById = async (id: mongoose.Types.ObjectId): Promise<IOrderD
   return Order.findById(id);
 };
 
+const isValidStatusTransition = (currentStatus: OrderStatus, newStatus: OrderStatus): boolean => {
+  const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+    [OrderStatus.PENDING]: [OrderStatus.APPROVED, OrderStatus.COMPLETED],
+    [OrderStatus.APPROVED]: [OrderStatus.SHIPPING, OrderStatus.COMPLETED],
+    [OrderStatus.SHIPPING]: [OrderStatus.SHIPPED, OrderStatus.COMPLETED],
+    [OrderStatus.SHIPPED]: [OrderStatus.COMPLETED],
+    [OrderStatus.COMPLETED]: [], // Không thể chuyển từ completed sang trạng thái khác
+  };
+
+  return validTransitions[currentStatus]?.includes(newStatus) || false;
+};
+
 /**
  * Update order status
  * @param {mongoose.Types.ObjectId} orderId
  * @param {IOrder['status']} status
  * @returns {Promise<IOrderDoc>}
  */
-export const updateOrderStatus = async (orderId: mongoose.Types.ObjectId, status: IOrder['status']): Promise<IOrderDoc> => {
+export const updateOrderStatus = async (
+  orderId: mongoose.Types.ObjectId,
+  newStatus: OrderStatus,
+  merchantId: mongoose.Types.ObjectId
+): Promise<IOrderDoc> => {
   const order = await getOrderById(orderId);
+  
   if (!order) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Order not found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Không tìm thấy đơn hàng');
   }
-  order.status = status;
+
+  // Kiểm tra quyền cập nhật
+  if (order.merchant.toString() !== merchantId.toString()) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Bạn không có quyền cập nhật đơn hàng này');
+  }
+
+  // Kiểm tra chuyển trạng thái hợp lệ
+  if (!isValidStatusTransition(order.status, newStatus)) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Không thể chuyển trạng thái từ ${order.status} sang ${newStatus}`
+    );
+  }
+
+  order.status = newStatus;
   await order.save();
   return order;
 };

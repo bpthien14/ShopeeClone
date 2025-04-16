@@ -1,27 +1,24 @@
 import axiosInstance from './axios';
 
+export interface OrderItem {
+  product: string; // objectId
+  name: string;
+  photoUrls: string[];
+  quantity: string;
+  unitPrice: string;
+}
+
 export interface Order {
   _id: string;
-  userId: string;
-  customerName: string;
-  orderDate: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  totalAmount: number;
-  items: Array<{
-    productId: string;
-    productName: string;
-    quantity: number;
-    price: number;
-  }>;
-  shippingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  paymentMethod: 'cod' | 'card' | 'banking';
+  merchant: string; // objectId
+  customerId: string; // objectId
+  items: OrderItem[];
+  discountAmount: number;
+  shippingAmount: number;
+  shippingAddress: string;
+  status: 'pending' | 'approved' | 'shipping' | 'shipped' | 'completed';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderListResponse {
@@ -39,7 +36,7 @@ export interface OrderParams {
 }
 
 export const getOrders = async (params: OrderParams = {}) => {
-  const response = await axiosInstance.get<OrderListResponse>('/orders', { params });
+  const response = await axiosInstance.get<OrderListResponse>('/orders/merchant', { params });
   // Map _id to id in response
   const mappedOrders = response.data.results.map(order => ({
     ...order,

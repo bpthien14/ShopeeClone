@@ -1,27 +1,29 @@
 import mongoose, { Schema } from 'mongoose';
 import { paginate } from '../paginate';
-import { IOrderDoc, IOrderModel } from './order.interfaces';
+import { IOrderDoc, IOrderModel, OrderStatus } from './order.interfaces';
 
 const orderItemSchema = new Schema(
   {
-    productId: {
+    product: {
       type: Schema.Types.ObjectId,
       ref: 'Product',
       required: true,
     },
-    productName: {
+    name: {
       type: String,
       required: true,
     },
-    quantity: {
-      type: Number,
+    photoUrls: {
+      type: [String],
       required: true,
-      min: 1,
     },
-    price: {
-      type: Number,
+    quantity: {
+      type: String,
       required: true,
-      min: 0,
+    },
+    unitPrice: {
+      type: String,
+      required: true,
     },
   },
   {
@@ -31,48 +33,36 @@ const orderItemSchema = new Schema(
 
 const orderSchema = new Schema<IOrderDoc, IOrderModel>(
   {
-    userId: {
+    merchant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    customerId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    customerName: {
+    items: [orderItemSchema],
+    discountAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    shippingAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    shippingAddress: {
       type: String,
       required: true,
-      trim: true,
-    },
-    orderDate: {
-      type: Date,
-      default: Date.now,
     },
     status: {
       type: String,
-      enum: ['pending', 'processing', 'completed', 'cancelled'],
-      default: 'pending',
-    },
-    items: [orderItemSchema],
-    totalAmount: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    shippingAddress: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ['pending', 'paid', 'failed'],
-      default: 'pending',
-    },
-    paymentMethod: {
-      type: String,
-      enum: ['cod', 'card', 'banking'],
-      default: 'cod',
-    },
+      enum: Object.values(OrderStatus),
+      default: OrderStatus.PENDING,
+    }
   },
   {
     timestamps: true,

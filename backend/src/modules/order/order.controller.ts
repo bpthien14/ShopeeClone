@@ -96,10 +96,6 @@ export const updateOrderStatus = catchAsync(async (req: CustomRequest, res: Resp
     throw new ApiError(httpStatus.UNAUTHORIZED, 'User not authenticated');
   }
 
-  console.log('Request params:', req.params);
-  console.log('Request body:', req.body);
-  console.log('User ID:', req.user._id);
-
   if (typeof req.params['orderId'] !== 'string') {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Order ID must be a string');
   }

@@ -10,11 +10,11 @@ import {
 
 import axiosInstance from './axios';
 
-export const URL_LOGIN = process.env.NEXT_PUBLIC_API_LOGIN || '/auth/login';
-export const URL_REGISTER = process.env.NEXT_PUBLIC_API_REGISTER || '/auth/register';
-export const URL_LOGOUT = process.env.NEXT_PUBLIC_API_LOGOUT || '/auth/logout';
-export const URL_REFRESH_TOKEN = process.env.NEXT_PUBLIC_API_REFRESH_TOKEN || '/auth/refresh-tokens';
-export const URL_GET_CURRENT_USER = process.env.NEXT_PUBLIC_API_GET_CURRENT_USER || '/auth/get-current-user';
+export const URL_LOGIN = '/auth/login';
+export const URL_REGISTER = '/auth/register';
+export const URL_LOGOUT = '/auth/logout';
+export const URL_REFRESH_TOKEN = '/auth/refresh-tokens';
+export const URL_GET_CURRENT_USER = '/auth/get-current-user';
 export const URL_UPDATE_PROFILE = '/auth/update-profile';
 
 export const loginAccount = async (body: { email: string; password: string }) => {
@@ -40,10 +40,12 @@ export const registerAccount = async (body: SignUpRequest) => {
     secure: true,
     sameSite: 'strict',
   });
+
   Cookies.set(refreshTokenName, res.data.tokens.refresh.token, {
     secure: true,
     sameSite: 'strict',
   });
+
   return res.data;
 };
 
@@ -52,10 +54,7 @@ export const logoutAccount = async () => {
   Cookies.remove(accessTokenName);
   Cookies.remove(refreshTokenName);
   await axiosInstance.post(URL_LOGOUT, { refreshToken });
-
-
 };
-
 
 export const getCurrentUser = async () => {
   const res = await axiosInstance.post<AuthResponse>(URL_GET_CURRENT_USER);

@@ -138,7 +138,7 @@ export function OrderList() {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    ${order.totalAmount.toFixed(2)}
+                    ${order.totalAmount?.toFixed(2)}
                   </TableCell>
                   <TableCell align="right">
                     <IconButton

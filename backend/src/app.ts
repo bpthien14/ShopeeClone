@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, RequestHandler } from 'express';
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
@@ -24,8 +24,8 @@ if (config.env !== 'test') {
 app.use(helmet());
 
 // enable cors
-app.use(cors());
-app.options('*', cors());
+app.use((cors() as unknown) as RequestHandler);
+app.options('*', (cors() as unknown) as RequestHandler);
 
 // parse json request body
 app.use(express.json());
@@ -34,19 +34,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // sanitize request data
-app.use(xss());
-app.use(ExpressMongoSanitize());
+app.use((xss() as unknown) as RequestHandler);
+app.use((ExpressMongoSanitize() as unknown) as RequestHandler);
 
 // gzip compression
-app.use(compression());
+app.use((compression() as unknown) as RequestHandler);
 
 // jwt authentication
-app.use(passport.initialize());
+app.use((passport.initialize() as unknown) as RequestHandler);
 passport.use('jwt', jwtStrategy);
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
-  app.use('/v1/auth', authLimiter);
+  app.use('/v1/auth', (authLimiter as unknown) as RequestHandler);
 }
 
 // v1 api routes

@@ -2,11 +2,13 @@ import { Document, Model, Types } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
 export enum OrderStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  SHIPPING = 'shipping',
-  SHIPPED = 'shipped',
-  COMPLETED = 'completed',
+  PENDING = 'pending', // Chờ xử lý
+  APPROVED = 'approved', // Đã xác nhận
+  SHIPPING = 'shipping', // Đang giao hàng
+  SHIPPED = 'shipped', // Đã giao hàng
+  COMPLETED = 'completed', // Hoàn thành
+  CANCELLED = 'cancelled', // Đã hủy
+  REFUNDED = 'refunded' // Đã hoàn tiền
 }
 
 export interface IOrderItem {

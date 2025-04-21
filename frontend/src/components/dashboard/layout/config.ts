@@ -11,6 +11,7 @@ export const navItems = [
   // { key: 'account', title: 'Account', href: paths.dashboard.account, icon: 'user' },
   // { key: 'error', title: 'Error', href: paths.errors.notFound, icon: 'x-square' },
   { key: 'c-overview', title: 'Overview', href: paths.customer.dashboard, icon: 'chart-pie', role: 'customer' },
+  { key: 'c-orders', title: 'Orders', href: paths.customer.orders, icon: 'shopping-bag', role: 'customer' },
   { key: 'c-cart', title: 'Cart', href: paths.customer.cart, icon: 'shopping-cart', role: 'customer' },
   { key: 'c-account', title: 'Account', href: paths.customer.account, icon: 'user', role: 'customer' },
 ] satisfies NavItemConfig[];

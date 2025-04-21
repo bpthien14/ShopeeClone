@@ -24,12 +24,13 @@ import { PencilSimple } from '@phosphor-icons/react/dist/ssr/PencilSimple';
 import { Order, OrderParams, getOrders } from '@/apis/order.api';
 import { OrderStatusSelect } from './OrderStatusSelect';
 
-const statusColors: Record<Order['status'], 'default' | 'primary' | 'warning' | 'info' | 'success'> = {
+const statusColors: Record<Order['status'], 'default' | 'primary' | 'warning' | 'info' | 'success' | 'error'> = {
   pending: 'default',
   approved: 'primary',
   shipping: 'warning',
   shipped: 'info',
   completed: 'success',
+  cancelled: 'error'
 };
 
 const statusLabels: Record<Order['status'], string> = {
@@ -38,6 +39,7 @@ const statusLabels: Record<Order['status'], string> = {
   shipping: 'Đang giao',
   shipped: 'Đã giao',
   completed: 'Hoàn thành',
+  cancelled: 'Đã hủy'
 };
 
 export function OrderList() {

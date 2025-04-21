@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
-import catchAsync from '../utils/catchAsync';
-import ApiError from '../errors/ApiError';
-import * as orderService from './order.service';
-import pick from '../utils/pick';
-import { IOrder } from './order.interfaces';
-import { IUserDoc } from '../user/user.interfaces';
+import catchAsync from '../../utils/catchAsync';
+import ApiError from '../../errors/ApiError';
+import * as orderService from './merchant.order.service';
+import pick from '../../utils/pick';
+import { IOrder } from '../order.interfaces';
+import { IUserDoc } from '../../user/user.interfaces';
 // import Order from './order.model';
 
 interface CustomRequest extends Request {

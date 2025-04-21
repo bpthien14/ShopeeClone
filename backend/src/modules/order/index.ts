@@ -1,7 +1,7 @@
-import * as orderController from './order.controller';
-import * as orderService from './order.service';
+import * as orderController from './merchant/merchant.order.controller';
+import * as orderService from './merchant/merchant.order.service';
 import Order from './order.model';
-import { orderValidation } from './order.validation';
+import { orderValidation } from './merchant/merchant.order.validation';
 
 export {
   Order,
@@ -16,7 +16,7 @@ export {
   getOrder,
   updateOrder,
   deleteOrder,
-} from './order.controller';
+} from './merchant/merchant.order.controller';
 
 export {
   createOrder as createOrderService,
@@ -24,4 +24,4 @@ export {
   getOrderById,
   updateOrderStatus,
   deleteOrder as deleteOrderService,
-} from './order.service'; 
+} from './merchant/merchant.order.service'; 

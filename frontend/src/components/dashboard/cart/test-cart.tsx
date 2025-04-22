@@ -12,7 +12,6 @@ export function TestCart() {
         setLoading(true);
         try {
             const cart = await getCart();
-            console.log('Cart data:', cart);
         } catch (error) {
             console.error('Failed to get cart:', error);
         } finally {

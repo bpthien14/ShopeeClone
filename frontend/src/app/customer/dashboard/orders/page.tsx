@@ -38,9 +38,7 @@ export default function OrdersPage() {
     }
   }
 
-  console.log('Raw API Response:', ordersData)
   const orders = ordersData?.data?.results || []
-  console.log('Processed Orders:', orders)
 
   return (
     <div className="container">

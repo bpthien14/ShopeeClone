@@ -22,7 +22,15 @@ export interface ProductRating {
    createdAt: Date;
    updatedAt: Date;
  }
+ export interface RatingData {
+  description: string;
+  rate: number;
+}
 
+interface ReviewResponse {
+  message: string;
+  data: RatingData;
+}
 export const getProducts = async () => {
     const response = await axiosInstance.get<Product>(`/products`);
     return response.data;
@@ -61,4 +69,11 @@ export const getProductsByCategory = async (category: string) => {
 export const getProductsBySearch = async (searchTerm: string) => {
     const response = await axiosInstance.get<Product>(`/products/search/${searchTerm}`);
     return response.data;
+};
+
+
+
+export const addProductReview = async (productId: string, data: RatingData): Promise<ReviewResponse> => {
+  const response = await axiosInstance.post<ReviewResponse>(`/products/${productId}/reviews`, data);
+  return response.data;
 };

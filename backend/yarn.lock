@@ -8011,3 +8011,8 @@ z-schema@^4.2.3:
     validator "^13.6.0"
   optionalDependencies:
     commander "^2.7.1"
+
+zod@^3.24.3:
+  version "3.24.3"
+  resolved "https://registry.npmjs.org/zod/-/zod-3.24.3.tgz"
+  integrity sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==

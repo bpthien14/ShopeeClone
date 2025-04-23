@@ -18,14 +18,7 @@ export interface Cart {
 // Add interface for checkout data
 export interface CheckoutData {
   customerName: string;
-  shippingAddress: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  paymentMethod: 'cod' | 'card' | 'banking';
+  shippingAddress: string;
 }
 
 export const getCart = async () => {
@@ -49,6 +42,8 @@ export const updateCartItemQuantity = async (productId: string, quantity: number
 };
 
 export const checkoutCart = async (checkoutData: CheckoutData): Promise<Order> => {
-  const response = await axiosInstance.post<Order>('/cart/checkout', checkoutData);
+  const response = await axiosInstance.post<Order>('/cart/checkout', {
+    shippingAddress: checkoutData.shippingAddress
+  });
   return response.data;
 };

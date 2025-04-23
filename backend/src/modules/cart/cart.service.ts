@@ -3,12 +3,22 @@ import mongoose from 'mongoose';
 import Cart from './cart.model';
 import ApiError from '../errors/ApiError';
 import { ICartDoc, ICartItem } from './cart.interfaces';
+import Product from '../product/product.model';
 
 export const getCart = async (userId: mongoose.Types.ObjectId): Promise<ICartDoc | null> => {
   return Cart.findOne({ userId });
 };
 
 export const addToCart = async (userId: mongoose.Types.ObjectId, item: ICartItem): Promise<ICartDoc> => {
+  // Check stock first
+  const product = await Product.findById(item.productId);
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Product not found');
+  }
+  if (product.stockAmount < item.quantity) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Only ${product.stockAmount} items available`);
+  }
+
   const cart = await Cart.findOne({ userId });
   
   if (!cart) {
@@ -74,6 +84,15 @@ export const updateCartItem = async (
   productId: mongoose.Types.ObjectId,
   quantity: number
 ): Promise<ICartDoc> => {
+  // Check stock first
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Product not found'+productId);
+  }
+  if (product.stockAmount < quantity) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Only ${product.stockAmount} items available`);
+  }
+
   const cart = await Cart.findOne({ userId });
   
   if (!cart) {

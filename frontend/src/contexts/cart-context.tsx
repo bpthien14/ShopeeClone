@@ -66,12 +66,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const updateItemQuantity = async (productId: string, quantity: number) => {
     try {
       const response = await cartApiUpdateCartItemQuantity(productId, quantity);
-      if (response.data) {
-        setCart(response.data);
+      if (response) {
+        setCart(response);
+        return response;
       }
-    } catch (error) {
-      if (error instanceof Error && 'response' in error) {
-        throw error;
+      throw new Error('No data received from server');
+    } catch (err) {
+      if (err instanceof Error && 'response' in err) {
+        throw err;
       }
       throw new Error('Failed to update cart');
     }

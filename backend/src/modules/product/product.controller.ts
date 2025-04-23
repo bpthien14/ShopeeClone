@@ -13,6 +13,7 @@ const createProduct = async (req: Request, res: Response) => {
     const zodParsedProductData = ProductValidationSchema.parse(product);
 
     const completeProductData: IProduct = {
+      slug: zodParsedProductData.name.toLowerCase().replace(/ /g, "-"), // Generate slug dynamically
       merchant: new mongoose.Types.ObjectId(), // Replace with actual merchant ObjectId
       unitPrice: zodParsedProductData.price, // Map price to unitPrice
       comparePrice: zodParsedProductData.price * 1.1, // Example logic for comparePrice
@@ -23,7 +24,7 @@ const createProduct = async (req: Request, res: Response) => {
       description: "",
       status: "active",
       photoUrls: [],
-      ratings: []
+      ratings: [],
     };
 
     const result = await ProductServices.createProductIntoDB(
@@ -44,7 +45,8 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-const getAllProduct = async (req: Request, res: Response) => {
+
+const getAllProducts = async (req: Request, res: Response) => {
   try {
     const searchTerm = req.query["searchTerm"] as string;
 
@@ -168,6 +170,67 @@ const deleteOneProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const getProductBySlug = async ( slug: string ): Promise<IProduct | null> => {
+  try {
+      
+      const product = await Product.findOne({ slug }).lean();
+  
+      if ( !product ) return null
+  
+  
+      //TODO: 
+      product.photoUrls = product.photoUrls.map( photoUrls => {
+          return photoUrls.includes('http') ? photoUrls : `${process.env["HOST_NAME"]}products/${photoUrls}` 
+      })
+  
+      return JSON.parse( JSON.stringify( product ))
+  } catch (error) {
+      console.log(error)
+      return null; // Ensure a return value in case of an error
+  }
+}
+
+
+interface ProductSlug {
+  slug: string
+}
+
+export const  getAllProductSlugs = async (): Promise<ProductSlug[]> => {
+  try {
+      
+      const slugs = await Product.find().select('slug -_id').lean()
+  
+      return slugs;
+  } catch (error) {
+      console.log(error);
+      return []; // Return an empty array in case of an error
+  }
+}
+
+export const getProductByTerm = async ( term: string ): Promise<IProduct[]> => {
+  
+  try {
+      term = term.toString().toLowerCase();
+      
+      const products = await Product.find({
+          $text: { $search: term }
+      })
+      .select('title  images price inStock slug -_id')
+      .lean()
+  
+      const updateProducts = products.map( product => {
+          product.photoUrls = product.photoUrls.map( photoUrls => {
+              return photoUrls.includes('http') ? photoUrls : `${process.env["HOST_NAME"]}products/${photoUrls}` 
+          })
+          return product
+      })
+  
+      return updateProducts;      
+  } catch (error) {
+      console.log(error);
+      return []; // Return an empty array in case of an error
+  }
+}
 // const searchProduct = async (req: Request, res: Response) => {
 //   try {
 //     const { searchItem } = req.query;
@@ -196,8 +259,12 @@ const deleteOneProduct = async (req: Request, res: Response) => {
 
 export const ProductControllers = {
   createProduct,
-  getAllProduct,
+  getAllProducts,
   getSingleProduct,
   updateSingleProduct,
   deleteOneProduct,
+  getProductBySlug,
+  getAllProductSlugs,
+  getProductByTerm,
+  // searchProduct,
 };

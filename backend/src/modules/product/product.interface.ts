@@ -9,7 +9,6 @@ import { Document, Model, Types } from 'mongoose';
  }
  
  export interface IProduct {
-   slug: string;
    merchant: Types.ObjectId;
    name: string;
    description: string;

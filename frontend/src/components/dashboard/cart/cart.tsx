@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import {
   Box,
@@ -16,43 +15,75 @@ import {
 import { Trash, Plus, Minus } from '@phosphor-icons/react';
 import { useCart } from '@/contexts/cart-context';
 import { CheckoutDialog } from './checkout-dialog';
-import { checkoutCart, type CheckoutData } from '@/apis/cart.api';
 import { useRouter } from 'next/navigation';
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
+interface CheckoutData {
+  customerName: string;
+  shippingAddress: string;
+}
 
 export function Cart() {
   const router = useRouter();
   const [checkoutOpen, setCheckoutOpen] = React.useState(false);
-  const { cart, loading, error, removeItem, updateItemQuantity, fetchCart } = useCart();
-  
+  const [itemErrors, setItemErrors] = React.useState<Record<string, string>>({});
+  const { cart, error, removeItem, updateItemQuantity, fetchCart, checkout } = useCart();
+
   React.useEffect(() => {
     void fetchCart();
   }, [fetchCart]);
 
-  const handleCheckout = async (checkoutData: CheckoutData) => {
-    try {
-      const order = await checkoutCart(checkoutData);
-      // Refresh cart after successful checkout
-      await fetchCart();
-      // Close checkout dialog
-      setCheckoutOpen(false);
-      // Redirect to order confirmation page
-      router.push(`/customer/dashboard/orders/${order._id}`);
-    } catch (err) {
-      console.error('Checkout failed:', err);
-    }
-  };
-
-  if (loading) {
+  // Loading state check
+  if (!cart) {
     return <Typography>Loading...</Typography>;
   }
 
+  // Error state check
   if (error) {
     return <Typography color="error">{error}</Typography>;
   }
 
-  if (!cart || cart.items.length === 0) {
+  // Empty cart check
+  if (!cart.items || cart.items.length === 0) {
     return <Typography>Your cart is empty</Typography>;
   }
+
+  const handleQuantityChange = async (productId: string, quantity: number) => {
+    try {
+      setItemErrors(prev => ({ ...prev, [productId]: '' }));
+      await updateItemQuantity(productId, quantity);
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'response' in err 
+        ? ((err as ApiError).response?.data?.message || 'Failed to update quantity')
+        : 'Failed to update quantity';
+
+      setItemErrors(prev => ({ 
+        ...prev, 
+        [productId]: errorMessage 
+      }));
+    }
+  };
+
+  const handleCheckout = async (checkoutData: CheckoutData) => {
+    try {
+      await checkout(checkoutData);
+      setCheckoutOpen(false);
+      router.push('/customer/dashboard/cart'); // Change route to orders page
+    } catch (err) {
+      console.error('Checkout failed:', err);
+      const errorMessage = err && typeof err === 'object' && 'response' in err 
+        ? ((err as ApiError).response?.data?.message || 'Checkout failed')
+        : 'Checkout failed';
+      alert(errorMessage);
+    }
+  };
 
   return (
     <Box>
@@ -78,7 +109,7 @@ export function Cart() {
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                   <IconButton
                     size="small"
-                    onClick={() => updateItemQuantity(item.productId, item.quantity - 1)}
+                    onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
                     disabled={item.quantity <= 1}
                   >
                     <Minus />
@@ -89,14 +120,24 @@ export function Cart() {
                     onChange={(e) => {
                       const value = parseInt(e.target.value);
                       if (!isNaN(value) && value > 0) {
-                        void updateItemQuantity(item.productId, value);
+                        void handleQuantityChange(item.productId, value);
                       }
                     }}
-                    sx={{ width: 60, mx: 1 }}
+                    sx={{ 
+                      width: 60, 
+                      mx: 1,
+                      '& .MuiFormHelperText-root': {
+                        position: 'absolute',
+                        bottom: -20,
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                    error={Boolean(itemErrors[item.productId])}
+                    helperText={itemErrors[item.productId]}
                   />
                   <IconButton
                     size="small"
-                    onClick={() => updateItemQuantity(item.productId, item.quantity + 1)}
+                    onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
                   >
                     <Plus />
                   </IconButton>

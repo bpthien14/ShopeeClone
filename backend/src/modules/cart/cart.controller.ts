@@ -56,16 +56,17 @@ export const updateCartItem = catchAsync(async (req: CustomRequest, res: Respons
     throw new ApiError(httpStatus.UNAUTHORIZED, 'User not authenticated');
   }
 
-  const productId = new mongoose.Types.ObjectId(req.params['productId']);
-  const { quantity } = req.body;
-
   const cart = await cartService.updateCartItem(
     req.user._id,
-    productId,
-    quantity
+    new mongoose.Types.ObjectId(req.params['productId']),
+    req.body.quantity
   );
 
-  res.status(httpStatus.OK).send(cart);
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Cart updated successfully',
+    data: cart
+  });
 });
 
 export const clearCart = catchAsync(async (req: CustomRequest, res: Response) => {

@@ -9,7 +9,6 @@ export interface ProductRating {
  
  export interface Product {
    _id: string;
-   slug: string;
    merchant: string;
    name: string;
    description: string;

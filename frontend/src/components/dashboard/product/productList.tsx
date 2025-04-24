@@ -14,7 +14,7 @@ export const ProductList: FC<Props> = ({ products }) => {
             products.map( (product: IProduct) => (
                 <ProductCard 
                     product={ product }
-                    key={ product.slug }
+                    key={ product.merchant.toString() }
                 />
             ))
         }

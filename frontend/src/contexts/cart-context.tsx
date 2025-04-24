@@ -2,7 +2,16 @@
 
 import * as React from 'react';
 import { createContext, useContext, useCallback, useState } from 'react';
-import { Cart, CartItem, getCart, addToCart, removeFromCart, updateCartItemQuantity as cartApiUpdateCartItemQuantity } from '@/apis/cart.api';
+import { 
+  Cart, 
+  CartItem, 
+  getCart, 
+  addToCart, 
+  removeFromCart, 
+  updateCartItemQuantity as cartApiUpdateCartItemQuantity,
+  checkoutCart as apiCheckoutCart, // Rename to avoid confusion
+  CheckoutData 
+} from '@/apis/cart.api';
 
 interface CartContextType {
   cart: Cart | null;
@@ -13,6 +22,7 @@ interface CartContextType {
   removeItem: (productId: string) => Promise<void>;
   updateItemQuantity: (productId: string, quantity: number) => Promise<Cart>;
   setCart: (cart: Cart | null) => void;
+  checkout: (checkoutData: CheckoutData) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -63,21 +73,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const updateItemQuantity = async (productId: string, quantity: number) => {
-    try {
-      const response = await cartApiUpdateCartItemQuantity(productId, quantity);
-      if (response) {
-        setCart(response);
-        return response;
-      }
-      throw new Error('No data received from server');
-    } catch (err) {
-      if (err instanceof Error && 'response' in err) {
-        throw err;
-      }
-      throw new Error('Failed to update cart');
+  const updateItemQuantity = useCallback(async (productId: string, quantity: number) => {
+    const response = await cartApiUpdateCartItemQuantity(productId, quantity);
+    if (response) {
+      setCart(response.data); // Update the cart state with the response
     }
-  };
+    return response;
+  }, []);
+
+  const checkout = useCallback(async (checkoutData: CheckoutData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await apiCheckoutCart(checkoutData); // Use the imported function
+      await fetchCart(); // Refresh cart after successful checkout
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchCart]);
 
   return (
     <CartContext.Provider
@@ -90,6 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         updateItemQuantity,
         setCart,
+        checkout,
       }}
     >
       {children}

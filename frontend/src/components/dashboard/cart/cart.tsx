@@ -17,7 +17,6 @@ import { useCart } from '@/contexts/cart-context';
 import { CheckoutDialog } from './checkout-dialog';
 import { useRouter } from 'next/navigation';
 
-
 interface ApiError {
   response?: {
     data?: {
@@ -26,71 +25,63 @@ interface ApiError {
   };
 }
 
+interface CheckoutData {
+  customerName: string;
+  shippingAddress: string;
+}
+
 export function Cart() {
   const router = useRouter();
   const [checkoutOpen, setCheckoutOpen] = React.useState(false);
   const [itemErrors, setItemErrors] = React.useState<Record<string, string>>({});
-  const { cart, loading, error, removeItem, updateItemQuantity, fetchCart } = useCart();
+  const { cart, error, removeItem, updateItemQuantity, fetchCart, checkout } = useCart();
 
   React.useEffect(() => {
     void fetchCart();
   }, [fetchCart]);
 
-  // Loading state first
-  if (loading) {
+  // Loading state check
+  if (!cart) {
     return <Typography>Loading...</Typography>;
   }
 
-  // Error state second
+  // Error state check
   if (error) {
     return <Typography color="error">{error}</Typography>;
   }
 
-  // Check for null cart first
-  if (!cart) {
-    return <Typography>Loading cart...</Typography>;
-  }
-
-  // Then check for empty cart
-  if (cart.items.length === 0) {
+  // Empty cart check
+  if (!cart.items || cart.items.length === 0) {
     return <Typography>Your cart is empty</Typography>;
   }
 
   const handleQuantityChange = async (productId: string, quantity: number) => {
     try {
-      // Clear any existing errors for this item
       setItemErrors(prev => ({ ...prev, [productId]: '' }));
-      
-      // Try to update quantity
       await updateItemQuantity(productId, quantity);
     } catch (err: unknown) {
-      // Show error but keep current cart state
       const errorMessage = err && typeof err === 'object' && 'response' in err 
         ? ((err as ApiError).response?.data?.message || 'Failed to update quantity')
         : 'Failed to update quantity';
-        
+
       setItemErrors(prev => ({ 
         ...prev, 
         [productId]: errorMessage 
       }));
-
-      // Prevent the TextField from updating on error
-      const currentItem = cart?.items.find(item => item.productId === productId);
-      if (currentItem) {
-        await updateItemQuantity(productId, currentItem.quantity);
-      }
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (checkoutData: CheckoutData) => {
     try {
-      await fetchCart(); // Refresh cart after successful checkout
+      await checkout(checkoutData);
       setCheckoutOpen(false);
-      
-      // Redirect back to cart page (it will show empty cart)
-      router.push('/customer/dashboard/cart');
+      router.push('/customer/dashboard/cart'); // Change route to orders page
     } catch (err) {
       console.error('Checkout failed:', err);
+      const errorMessage = err && typeof err === 'object' && 'response' in err 
+        ? ((err as ApiError).response?.data?.message || 'Checkout failed')
+        : 'Checkout failed';
+      alert(errorMessage);
     }
   };
 

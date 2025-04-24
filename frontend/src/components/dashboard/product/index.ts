@@ -1,5 +1,7 @@
 
-export * from './product-card'
-export * from './product-list'
-export * from './product-slideshow'
-export * from './size-selector'
+
+
+export * from './productCard'
+export * from './productList'
+export * from './productSlideShow'
+export * from './itemCounter'

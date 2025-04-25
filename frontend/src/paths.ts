@@ -4,7 +4,7 @@ export const paths = {
   auth: { signIn: '/auth/sign-in', signUp: '/auth/sign-up', resetPassword: '/auth/reset-password' },
   merchant:{
     dashboard: '/merchant/dashboard',
-    // products: '/merchant/dashboard/products',
+    product: '/merchant/dashboard/product',
     orders: '/merchant/dashboard/orders',
     account: '/merchant/dashboard/account',
 

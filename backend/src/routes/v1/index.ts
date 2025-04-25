@@ -5,6 +5,7 @@ import userRoute from './user.route';
 import orderRoute from './order.route';
 import config from '../../config/config';
 import cartRoute from './cart.route';
+import { ProductRoutes } from './product.route';
 
 const router = express.Router();
 
@@ -30,6 +31,10 @@ const defaultIRoute: IRoute[] = [
     path: '/cart',
     route: cartRoute,
   },
+  {
+    path: '/products',
+    route: ProductRoutes,
+  }
 ];
 
 const devIRoute: IRoute[] = [

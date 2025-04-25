@@ -1,17 +1,18 @@
+'use client'
 import React, { FC, useContext, useState, useEffect } from 'react'
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
+// import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next'
 
 import { Box, Button, Chip, Grid, Typography, Container } from '@mui/material'
 
 import { ShopLayout } from '../../../../components/dashboard/layout/shop-layout'
 import { ProductSlideShow } from '../../../../components/dashboard/product/productSlideShow'
 import { ItemCounter } from '../../../../components/ui/itemCounter'
-import { CartItem } from '../../../../apis/cart.api'
+// import { CartItem } from '../../../../apis/cart.api'
 import { Product } from '../../../../apis/product.api'
-import { ProductControllers } from '../../../../../../backend/src/modules/product/product.controller'
-import { useCart } from '../../../../contexts/cart-context'
-import { useRouter } from 'next/router'
-import { useProducts } from '@/hooks/use-product'
+// import { ProductControllers } from '../../../../../../backend/src/modules/product/product.controller'
+// import { useCart } from '../../../../contexts/cart-context'
+// import { useRouter } from 'next/router'
+// import { useProducts } from '@/hooks/use-product'
 import { Stack } from '@mui/material';
 
 interface Props {
@@ -35,7 +36,7 @@ export default function ProductPage({ product }: Props): React.JSX.Element {
         <Typography variant="h4">Products Details</Typography>
       </div>
 
-      <ShopLayout title={product.name} pageDescription={product.description}>
+      <ShopLayout title={product.merchant} pageDescription={product.description}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={7}>
             <ProductSlideShow images={product.photoUrls} />

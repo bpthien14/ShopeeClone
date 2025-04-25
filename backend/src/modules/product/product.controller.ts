@@ -15,81 +15,70 @@ import { IUserDoc } from '../user/user.interfaces';
 interface CustomRequest extends Request {
   user?: IUserDoc;
 }
-const createProduct = async (req: Request, res: Response) => {
-  try {
-    const product = req.body;
 
-    const zodParsedProductData = ProductValidationSchema.parse(product);
+const createProduct = catchAsync(async (req: CustomRequest, res: Response) => {
+  if (!req.user?._id) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'User not authenticated');
+  }
 
-    const completeProductData: IProduct = {
-      merchant: new mongoose.Types.ObjectId(), // Replace with actual merchant ObjectId
-      unitPrice: zodParsedProductData.price, // Map price to unitPrice
-      comparePrice: zodParsedProductData.price * 1.1, // Example logic for comparePrice
-      stockAmount: zodParsedProductData.quantity, // Map quantity to stockAmount
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      name: "",
-      description: "",
-      status: "active",
-      photoUrls: [],
-      ratings: [],
+  const productData = req.body;
+  const zodParsedProductData = ProductValidationSchema.parse(productData);
+
+  const completeProductData: IProduct = {
+    merchant: req.user._id,
+    name: zodParsedProductData.name,
+    description: zodParsedProductData.description,
+    unitPrice: zodParsedProductData.price,
+    comparePrice: zodParsedProductData.price * 1.1,
+    stockAmount: zodParsedProductData.quantity,
+    status: "active",
+    photoUrls: [
+      "https://example.com/placeholder.jpg"
+    ], // Default placeholder image
+    ratings: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const result = await ProductServices.createProductIntoDB(completeProductData);
+
+  res.status(httpStatus.CREATED).json({
+    success: true,
+    message: "Product created successfully!",
+    data: result,
+  });
+});
+
+const getAllProducts = catchAsync(async (req: CustomRequest, res: Response) => {
+  const searchTerm = req.query['searchTerm'] as string | undefined;
+  const userId = req.user?._id;
+  const userRole = req.user?.role;
+  
+  // Base query to show only active products for public/customer view
+  let query: Record<string, any> = {
+    status: 'active'
+  };
+
+  // Special case: if it's a merchant viewing their dashboard, show all their products
+  if (userId && userRole === 'merchant' && req.path.includes('merchant/dashboard')) {
+    query = { merchant: userId };
+    delete query['status']; // Show all products (active and draft) for merchant
+  }
+
+  // Add search filter if searchTerm exists
+  if (searchTerm?.trim()) {
+    query = { 
+      ...query,
+      name: { $regex: searchTerm.trim(), $options: 'i' }
     };
-
-    const result = await ProductServices.createProductIntoDB(
-      completeProductData
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Product created successfully!",
-      data: result,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Product is not created successfully",
-      error: error,
-    });
   }
-};
 
-
-const getAllProducts = async (req: Request, res: Response) => {
-  try {
-    const searchTerm = req.query["searchTerm"] as string;
-
-    if (searchTerm) {
-      const queryProducts = await ProductServices.queryProductByName(
-        searchTerm
-      );
-      if (queryProducts.length === 0) {
-        res.status(404).json({
-          success: false,
-          message: `No products found matching search term ${searchTerm} `,
-        });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: `Products matching search term '${searchTerm}' fetched successfully!`,
-          data: queryProducts,
-        });
-      }
-    } else {
-      const result = await ProductServices.getAllProductFromDB();
-      res.status(200).json({
-        success: true,
-        message: `porducts fetched successfully!`,
-        data: result,
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Product is not fatched successfully",
-      error: error,
-    });
-  }
-};
+  const products = await Product.find(query)
+    .populate('merchant', 'name')  // Populate merchant details
+    .sort({ createdAt: -1 });     // Sort by newest first
+  
+  res.status(200).json(products);
+});
 
 const getSingleProduct = async (req: Request, res: Response) => {
   try {

@@ -40,9 +40,7 @@ export const ItemCounter: FC<Props> = ({ currentValue, maxQuantity, onChangeQuan
                 <AddCircleOutline   />
               </IconButton>
             )
-         }
-         
-          
+         }    
     </Box>
   )
 }

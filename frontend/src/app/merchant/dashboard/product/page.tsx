@@ -1,3 +1,4 @@
+'use client'
 import React, { useMemo } from 'react'
 import NextLink from 'next/link'
 import useSWR from 'swr'
@@ -7,7 +8,8 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { Container, Typography, Box } from '@mui/material';
 import Layout from '../layout'
 import { FullScreenLoading } from '../../../../components/ui/fullScreenLoading'
-import { IProduct } from '../../../../../../backend/src/modules/product/product.interface'
+import { Product } from '@/apis/product.api'
+import axiosInstance from '@/apis/axios'
 
 const columns: GridColDef[] = [
     {field: 'photoUrls', headerName: 'Image', width: 100, renderCell: (params) => (
@@ -19,7 +21,7 @@ const columns: GridColDef[] = [
         />
     )},
     {field: 'name', headerName: 'Name', width: 250, renderCell: (params) => (
-        <Link component={NextLink} href={`/merchant/products/${params.row.merchant}`} underline='always'>
+        <Link component={NextLink} href={`/merchant/product/${params.row._id}`} underline='always'>
             {params.row.name}
         </Link>
     )},
@@ -32,62 +34,66 @@ const columns: GridColDef[] = [
     {field: 'ratings', headerName: 'Ratings'},
 ]
 
+// SWR fetcher function
+const fetcher = (url: string) => axiosInstance.get(url).then(res => res.data);
 
 export default function ProductPage(): React.JSX.Element {
-
-    const {data, error} = useSWR<IProduct[]>('/merchant/dashboard/products')
+    const {data, error} = useSWR<Product[]>('/products', fetcher)
 
     const rows = useMemo(()=> { 
-        if ( data ) {
-            return (
-                data.map((product: IProduct): IProduct => ({
-                    photoUrls: [product.photoUrls[0]],
-                    name: product.name,
-                    description: product.description,
-                    unitPrice: product.unitPrice,
-                    comparePrice: product.comparePrice,
-                    stockAmount: product.stockAmount,
-                    status: product.status,
-                    ratings: product.ratings,
-                    merchant: product.merchant,
-                    createdAt: product.createdAt,
-                    updatedAt: product.updatedAt,
-                })
-            ))
+        if (data) {
+            return data.map((product: Product) => ({
+                id: product._id,
+                photoUrls: [product.photoUrls[0]],
+                name: product.name,
+                description: product.description,
+                unitPrice: product.unitPrice,
+                comparePrice: product.comparePrice,
+                stockAmount: product.stockAmount,
+                status: product.status,
+                ratings: product.ratings?.length || 0,
+                merchant: product.merchant,
+                createdAt: product.createdAt,
+                updatedAt: product.updatedAt,
+            }))
         }
-    }, [data])
-  return ( 
-    <Container maxWidth={false}>
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="h4" gutterBottom>
-            Products
-            <Chip label={data?.length} color='secondary' variant='outlined' sx={{ ml: 2 }} />
-            <Box display='flex' justifyContent='end' sx={{ mb: 2 }}>
-                <Button
-                    startIcon={<AddOutlined />}
-                    color='secondary'
-                    href='/merchant/products/create'
-                >
-                    Create Product
-                </Button>
+        return [];
+    }, [data]);
+
+    return ( 
+        <Container maxWidth={false}>
+            <Box sx={{ mt: 3 }}>
+                <Typography variant="h4" gutterBottom>
+                    Products
+                    <Chip label={data?.length} color='secondary' variant='outlined' sx={{ ml: 2 }} />
+                    <Box display='flex' justifyContent='end' sx={{ mb: 2 }}>
+                        <Button
+                            startIcon={<AddOutlined />}
+                            color='secondary'
+                            href='/merchant/dashboard/product/create'
+                        >
+                            Create Product
+                        </Button>
+                    </Box>
+                    {!data && !error 
+                        ? (<FullScreenLoading />) 
+                        : ( 
+                            <Grid container className='fadeIn' item xs={12} sx={{ height:650, width: '100%' }}>
+                                <DataGrid
+                                    rows={rows}
+                                    columns={columns}
+                                    initialState={{
+                                        pagination: {
+                                            paginationModel: { pageSize: 10 },
+                                        },
+                                    }}
+                                    pageSizeOptions={[10]}
+                                />
+                            </Grid>
+                        )}    
+                </Typography>
             </Box>
-            {!data && !error 
-                ? (<FullScreenLoading />) 
-                : ( <Grid container className='fadeIn' item xs={12} sx={{ height:650, width: '100%' }}>
-                        <DataGrid
-                            rows={ rows }
-                            columns={ columns }
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { pageSize: 10 },
-                                },
-                            }}
-                            pageSizeOptions={[10]}
-                        />
-                    </Grid>)}    
-        </Typography>
-      </Box>
-    </Container>
-  )
+        </Container>
+    )
 }
 

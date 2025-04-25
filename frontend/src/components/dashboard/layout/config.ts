@@ -5,6 +5,7 @@ export const navItems = [
   { key: 'm-overview', title: 'Overview', href: paths.merchant.dashboard, icon: 'chart-pie', role: 'merchant' },
   { key: 'm-orders', title: 'Orders', href: paths.merchant.orders, icon: 'shopping-bag', role: 'merchant' },
   { key: 'm-account', title: 'Account', href: paths.merchant.account, icon: 'user', role: 'merchant' },
+  { key: 'm-product', title: 'Products', href: paths.merchant.product, icon: 'box', role: 'merchant' },
   // { key: 'customers', title: 'Customers', href: paths.dashboard.customers, icon: 'users' },
   // { key: 'integrations', title: 'Integrations', href: paths.dashboard.integrations, icon: 'plugs-connected' },
   // { key: 'settings', title: 'Settings', href: paths.dashboard.settings, icon: 'gear-six' },

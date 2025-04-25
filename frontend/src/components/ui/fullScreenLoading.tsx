@@ -10,7 +10,7 @@ export const FullScreenLoading = () => {
       alignItems='center'
       height='calc(100vh - 200px)'
     >
-        <Typography variant='h2' sx={{ mb: 3 }} fontWeight={ 200 }>Cargando...</Typography>
+        <Typography variant='h2' sx={{ mb: 3 }} fontWeight={ 200 }>Loading...</Typography>
         <CircularProgress thickness={ 2 } />
     </Box>
   )

@@ -10,7 +10,7 @@ export interface ICartItem {
     _id: Types.ObjectId;
     name: string;
   };
-  photoUrl?: string;
+  photoUrl?: string[];
 }
 
 export interface ICart {

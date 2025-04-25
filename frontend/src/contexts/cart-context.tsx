@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { createContext, useContext, useCallback, useState } from 'react';
 import { 
-  Cart, 
-  CartItem, 
+  type Cart, 
+  type CartItem, 
   getCart, 
   addToCart, 
   removeFromCart, 
   updateCartItemQuantity as cartApiUpdateCartItemQuantity,
   checkoutCart as apiCheckoutCart, // Rename to avoid confusion
-  CheckoutData 
+  type CheckoutData 
 } from '@/apis/cart.api';
 
 interface CartContextType {
@@ -37,7 +37,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       const data = await getCart();
-      console.log(data);
       setCart(data);
       return data;
     } catch (err) {
@@ -86,7 +85,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      await apiCheckoutCart(checkoutData); // Use the imported function
+      if (!cart?.items.length) {
+        throw new Error('Cart is empty');
+      }
+      await apiCheckoutCart(checkoutData);
       await fetchCart(); // Refresh cart after successful checkout
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -94,7 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [fetchCart]);
+  }, [cart, fetchCart]);
 
   return (
     <CartContext.Provider

@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { Order } from './order.api';
+import { type Order } from './order.api';
 
 export interface CartItem {
   productId: string; // Just the ID
@@ -22,7 +22,6 @@ export interface Cart {
 
 // Add interface for checkout data
 export interface CheckoutData {
-  customerName: string;
   shippingAddress: string;
 }
 
@@ -46,9 +45,7 @@ export const updateCartItemQuantity = async (productId: string, quantity: number
   return response.data;
 };
 
-export const checkoutCart = async (checkoutData: CheckoutData): Promise<Order> => {
-  const response = await axiosInstance.post<Order>('/cart/checkout', {
-    shippingAddress: checkoutData.shippingAddress
-  });
+export const checkoutCart = async (checkoutData: CheckoutData) => {
+  const response = await axiosInstance.post('/cart/checkout', checkoutData);
   return response.data;
 };

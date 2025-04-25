@@ -18,49 +18,37 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ open, onClose, onCheckout }: CheckoutDialogProps) {
   const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({
-    customerName: '',
     shippingAddress: ''
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    await onCheckout(checkoutData);
+    void onCheckout(checkoutData);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Checkout</DialogTitle>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Checkout</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+          <Grid container spacing={3}>
+            <Grid xs={12}>
               <TextField
-                fullWidth
-                label="Customer Name"
-                value={checkoutData.customerName}
-                onChange={(e) => { setCheckoutData(prev => ({
-                  ...prev,
-                  customerName: e.target.value
-                })); }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
                 label="Shipping Address"
+                fullWidth
                 value={checkoutData.shippingAddress}
-                onChange={(e) => { setCheckoutData(prev => ({
-                  ...prev,
-                  shippingAddress: e.target.value
-                })); }}
+                onChange={(e) => {
+                  setCheckoutData(prev => ({
+                    ...prev,
+                    shippingAddress: e.target.value
+                  }));
+                }}
                 multiline
                 rows={3}
                 placeholder="Enter your complete shipping address"
                 required
               />
             </Grid>
-            
           </Grid>
         </DialogContent>
         <DialogActions>

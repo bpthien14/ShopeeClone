@@ -48,7 +48,6 @@ export const getCart = async (userId: mongoose.Types.ObjectId): Promise<ICartDoc
     items: enrichedItems,
     totalAmount: cart.totalAmount
   };
-  console.log("Enriched Cart: ", enrichedCart);
   return enrichedCart as ICartDoc;
 };
 

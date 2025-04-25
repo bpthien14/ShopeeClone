@@ -94,14 +94,19 @@ export const checkoutCart = catchAsync(async (req: CustomRequest, res: Response)
   const orderItems = cart.items.map(item => ({
     product: item.productId,
     name: item.productName,
-    photoUrls: [], // You might want to fetch this from the product service
+    photoUrls: item.photoUrl || [], // Provide empty array as fallback
     quantity: item.quantity.toString(),
     unitPrice: item.price.toString()
   }));
 
+  // Check if cart has items and merchant info
+  if (!cart.items[0]?.merchant?._id) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid merchant information in cart');
+  }
+
   // Create order from cart
   const order = await orderService.createOrder({
-    merchant: new mongoose.Types.ObjectId(), // You need to get the merchant ID from the product
+    merchant: cart.items[0].merchant._id, // You need to get the merchant ID from the product
     customerId: req.user._id,
     items: orderItems,
     discountAmount: 0,

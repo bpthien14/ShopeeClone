@@ -73,9 +73,12 @@ export function Cart() {
 
   const handleCheckout = async (checkoutData: CheckoutData) => {
     try {
-      await checkout(checkoutData);
+      // Only send shipping address
+      await checkout({
+        shippingAddress: checkoutData.shippingAddress
+      });
       setCheckoutOpen(false);
-      router.push('/customer/dashboard/cart'); // Change route to orders page
+      router.push('/customer/dashboard/orders');
     } catch (err) {
       console.error('Checkout failed:', err);
       const errorMessage = err && typeof err === 'object' && 'response' in err 

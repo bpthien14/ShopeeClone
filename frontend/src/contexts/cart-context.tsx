@@ -37,6 +37,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       const data = await getCart();
+      console.log(data);
       setCart(data);
       return data;
     } catch (err) {

@@ -2,10 +2,15 @@ import axiosInstance from './axios';
 import { Order } from './order.api';
 
 export interface CartItem {
-  productId: string;
+  productId: string; // Just the ID
   productName: string;
   quantity: number;
   price: number;
+  photoUrl?: string; // Add this
+  merchant?: {
+    _id: string;
+    name: string;
+  }; // Add this
 }
 
 export interface Cart {

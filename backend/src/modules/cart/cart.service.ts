@@ -6,7 +6,50 @@ import { ICartDoc, ICartItem } from './cart.interfaces';
 import Product from '../product/product.model';
 
 export const getCart = async (userId: mongoose.Types.ObjectId): Promise<ICartDoc | null> => {
-  return Cart.findOne({ userId });
+  // Step 1: Fetch the cart document
+  const cart = await Cart.findOne({ userId });
+  if (!cart) throw new Error("Cart not found");
+
+  // Step 2: Get all product IDs from the cart
+  const productIds = cart.items.map(item => item.productId);
+
+  // Step 3: Fetch corresponding product data with merchant populated
+  const products = await Product.find({ _id: { $in: productIds } })
+    .populate("merchant", "name")
+    .lean();
+
+  // Step 4: Build a map for quick lookup
+  const productMap = new Map<string, any>(
+    products.map(p => [p._id.toString(), p])
+  );
+
+  // Step 5: Create enriched items
+  const enrichedItems = cart.items.map(item => {
+    const product = productMap.get(item.productId.toString());
+    return {
+      productId: item.productId,
+      productName: product?.name || "Unknown Product",
+      quantity: item.quantity,
+      price: item.price,
+      photoUrl: product?.photoUrls?.[0], // Get first photo
+      merchant: product?.merchant 
+        ? {
+            _id: product.merchant._id,
+            name: product.merchant.name
+          }
+        : undefined
+    };
+  });
+
+  // Step 6: Create a new cart object with enriched items
+  const enrichedCart = {
+    _id: cart._id,
+    userId: cart.userId,
+    items: enrichedItems,
+    totalAmount: cart.totalAmount
+  };
+  console.log("Enriched Cart: ", enrichedCart);
+  return enrichedCart as ICartDoc;
 };
 
 export const addToCart = async (userId: mongoose.Types.ObjectId, item: ICartItem): Promise<ICartDoc> => {

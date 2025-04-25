@@ -6,6 +6,11 @@ export interface ICartItem {
   productName: string;
   quantity: number;
   price: number;
+  merchant?: {
+    _id: Types.ObjectId;
+    name: string;
+  };
+  photoUrl?: string;
 }
 
 export interface ICart {

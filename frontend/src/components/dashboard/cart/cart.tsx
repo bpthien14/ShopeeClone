@@ -94,6 +94,7 @@ export function Cart() {
         <TableHead>
           <TableRow>
             <TableCell>Product</TableCell>
+            <TableCell>Merchant</TableCell>
             <TableCell align="right">Price</TableCell>
             <TableCell align="right">Quantity</TableCell>
             <TableCell align="right">Total</TableCell>
@@ -103,7 +104,20 @@ export function Cart() {
         <TableBody>
           {cart.items.map((item) => (
             <TableRow key={item.productId}>
-              <TableCell>{item.productName}</TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {item.photoUrl ? <Box
+                      component="img"
+                      src={item.photoUrl}
+                      alt={item.productName}
+                      sx={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 1 }}
+                    /> : null}
+                  <Typography>{item.productName}</Typography>
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Typography>{item.merchant?.name || 'Unknown Merchant'}</Typography>
+              </TableCell>
               <TableCell align="right">${item.price.toFixed(2)}</TableCell>
               <TableCell align="right">
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>

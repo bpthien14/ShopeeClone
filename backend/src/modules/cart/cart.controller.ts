@@ -5,7 +5,7 @@ import catchAsync from '../utils/catchAsync';
 import * as cartService from './cart.service';
 import ApiError from '../errors/ApiError';
 import { IUserDoc } from '../user/user.interfaces';
-import * as orderService from '../order/order.service';
+import * as orderService from '../order/merchant/merchant.order.service';
 import { OrderStatus } from '../order/order.interfaces';
 
 interface CustomRequest extends Request {

@@ -1,9 +1,9 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
-import Order from './order.model';
-import ApiError from '../errors/ApiError';
-import { IOptions, QueryResult } from '../paginate/paginate';
-import { IOrder, IOrderDoc, OrderStatus } from './order.interfaces';
+import Order from '../order.model';
+import ApiError from '../../errors/ApiError';
+import { IOptions, QueryResult } from '../../paginate/paginate';
+import { IOrder, IOrderDoc, OrderStatus } from '../order.interfaces';
 
 /**
  * Create an order
@@ -36,11 +36,13 @@ export const getOrderById = async (id: mongoose.Types.ObjectId): Promise<IOrderD
 
 const isValidStatusTransition = (currentStatus: OrderStatus, newStatus: OrderStatus): boolean => {
   const validTransitions: Record<OrderStatus, OrderStatus[]> = {
-    [OrderStatus.PENDING]: [OrderStatus.APPROVED, OrderStatus.COMPLETED],
-    [OrderStatus.APPROVED]: [OrderStatus.SHIPPING, OrderStatus.COMPLETED],
+    [OrderStatus.PENDING]: [OrderStatus.APPROVED, OrderStatus.COMPLETED, OrderStatus.CANCELLED],
+    [OrderStatus.APPROVED]: [OrderStatus.SHIPPING, OrderStatus.COMPLETED, OrderStatus.CANCELLED],
     [OrderStatus.SHIPPING]: [OrderStatus.SHIPPED, OrderStatus.COMPLETED],
-    [OrderStatus.SHIPPED]: [OrderStatus.COMPLETED],
-    [OrderStatus.COMPLETED]: [], // Không thể chuyển từ completed sang trạng thái khác
+    [OrderStatus.SHIPPED]: [OrderStatus.COMPLETED, OrderStatus.REFUNDED],
+    [OrderStatus.COMPLETED]: [],
+    [OrderStatus.CANCELLED]: [],
+    [OrderStatus.REFUNDED]: []
   };
 
   return validTransitions[currentStatus]?.includes(newStatus) || false;

@@ -1,6 +1,6 @@
 import Joi from 'joi';
-import { objectId } from '../validate/custom.validation';
-import { OrderStatus } from './order.interfaces';
+import { objectId } from '../../validate/custom.validation';
+import { OrderStatus } from '../order.interfaces';
 
 const createOrder = {
   body: Joi.object().keys({

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDefinition from '../../modules/swagger/swagger.definition';
@@ -10,10 +10,7 @@ const specs = swaggerJsdoc({
   apis: ['packages/components.yaml', 'dist/routes/v1/*.js'],
 });
 
-router.use('/', ...swaggerUi.serve);
-router.get(
-  '/',
-  (req, res, next) => swaggerUi.setup(specs, { explorer: true })(req, res, next)
-);
+router.use('/', swaggerUi.serve as unknown as RequestHandler[]);
+router.get('/', swaggerUi.setup(specs, { explorer: true }) as unknown as RequestHandler);
 
 export default router;

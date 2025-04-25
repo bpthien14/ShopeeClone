@@ -16,7 +16,7 @@ export interface Order {
   discountAmount: number;
   shippingAmount: number;
   shippingAddress: string;
-  status: 'pending' | 'approved' | 'shipping' | 'shipped' | 'completed';
+  status: 'pending' | 'approved' | 'shipping' | 'shipped' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
 }
@@ -49,7 +49,7 @@ export const getOrders = async (params: OrderParams = {}) => {
 };
 
 export const getOrderById = async (id: string) => {
-  const response = await axiosInstance.get<Order>(`/orders/${id}`);
+  const response = await axiosInstance.get<Order>(`/orders/merchant/${id}`);
   return {
     ...response.data,
     id: response.data._id
@@ -57,7 +57,7 @@ export const getOrderById = async (id: string) => {
 };
 
 export const updateOrderStatus = async (id: string, status: Order['status']) => {
-  const response = await axiosInstance.patch<Order>(`/orders/${id}`, { status });
+  const response = await axiosInstance.patch<Order>(`/orders/merchant/${id}`, { status });
   return {
     ...response.data,
     id: response.data._id

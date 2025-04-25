@@ -45,7 +45,7 @@ export const updateCartItemQuantity = async (productId: string, quantity: number
   return response.data;
 };
 
-export const checkoutCart = async (checkoutData: CheckoutData) => {
-  const response = await axiosInstance.post('/cart/checkout', checkoutData);
+export const checkoutCart = async (checkoutData: CheckoutData): Promise<Order> => {
+  const response = await axiosInstance.post<Order>('/cart/checkout', checkoutData);
   return response.data;
 };

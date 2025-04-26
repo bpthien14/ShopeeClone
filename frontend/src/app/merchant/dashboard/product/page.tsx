@@ -1,12 +1,14 @@
 'use client'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
+import * as React from 'react'
 import NextLink from 'next/link'
 import useSWR from 'swr'
+import { useRouter } from 'next/navigation'
 import { AddOutlined} from '@mui/icons-material'
 import { Button, CardMedia, Chip, Grid, Link } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid } from '@mui/x-data-grid'
+import type { GridColDef } from '@mui/x-data-grid'
 import { Container, Typography, Box } from '@mui/material';
-import Layout from '../layout'
 import { FullScreenLoading } from '../../../../components/ui/fullScreenLoading'
 import { Product } from '@/apis/product.api'
 import axiosInstance from '@/apis/axios'
@@ -38,6 +40,7 @@ const columns: GridColDef[] = [
 const fetcher = (url: string) => axiosInstance.get(url).then(res => res.data);
 
 export default function ProductPage(): React.JSX.Element {
+    const router = useRouter()
     const {data, error} = useSWR<Product[]>('/products', fetcher)
 
     const rows = useMemo(()=> { 
@@ -60,6 +63,10 @@ export default function ProductPage(): React.JSX.Element {
         return [];
     }, [data]);
 
+    const handleCreateProduct = () => {
+        router.push('/merchant/dashboard/product/create')
+    }
+
     return ( 
         <Container maxWidth={false}>
             <Box sx={{ mt: 3 }}>
@@ -70,7 +77,7 @@ export default function ProductPage(): React.JSX.Element {
                         <Button
                             startIcon={<AddOutlined />}
                             color='secondary'
-                            href='/merchant/dashboard/product/create'
+                            onClick={handleCreateProduct}
                         >
                             Create Product
                         </Button>

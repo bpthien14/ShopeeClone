@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Box, Button, Container, Grid, TextField, Typography, Alert, Snackbar } from '@mui/material'
+import { Box, Button, Container, Grid, TextField, Typography } from '@mui/material'
 import { createProduct } from '@/apis/product.api'
 
 export default function CreateProductPage() {
@@ -13,15 +13,9 @@ export default function CreateProductPage() {
         quantity: '',
         photoUrls: ['https://example.com/placeholder.jpg'] // Default placeholder
     })
-    const [success, setSuccess] = useState(false)
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setLoading(true)
-        setError('')
-        
         try {
             await createProduct({
                 name: formData.name,
@@ -37,47 +31,18 @@ export default function CreateProductPage() {
                 updatedAt: new Date(),
                 _id: ''
             })
-            
-            // Hiển thị thông báo thành công mà không chuyển hướng
-            setSuccess(true)
-            
-            // Reset form
-            setFormData({
-                name: '',
-                description: '',
-                price: '',
-                quantity: '',
-                photoUrls: ['https://example.com/placeholder.jpg']
-            })
+            router.push('/merchant/dashboard/product')
         } catch (error) {
             console.error('Error creating product:', error)
-            setError('Có lỗi xảy ra khi tạo sản phẩm. Vui lòng thử lại sau.')
-        } finally {
-            setLoading(false)
         }
-    }
-
-    const handleBack = () => {
-        router.push('/merchant/dashboard/product')
     }
 
     return (
         <Container maxWidth={false}>
             <Box sx={{ mt: 3 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h4" gutterBottom>
-                        Create New Product
-                    </Typography>
-                    <Button 
-                        variant="outlined" 
-                        onClick={handleBack}
-                    >
-                        Back to Products
-                    </Button>
-                </Box>
-                
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                
+                <Typography variant="h4" gutterBottom>
+                    Create New Product
+                </Typography>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
@@ -130,25 +95,13 @@ export default function CreateProductPage() {
                                 size="large"
                                 type="submit"
                                 variant="contained"
-                                disabled={loading}
                             >
-                                {loading ? 'Creating...' : 'Create Product'}
+                                Create Product
                             </Button>
                         </Grid>
                     </Grid>
                 </form>
             </Box>
-            
-            <Snackbar 
-                open={success} 
-                autoHideDuration={6000} 
-                onClose={() => setSuccess(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
-                    Product created successfully!
-                </Alert>
-            </Snackbar>
         </Container>
     )
 }

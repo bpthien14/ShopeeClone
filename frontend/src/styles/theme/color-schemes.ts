@@ -35,10 +35,10 @@ export const colorSchemes = {
       },
       neutral: { ...nevada },
       primary: {
-        ...neonBlue,
-        light: neonBlue[300],
-        main: neonBlue[400],
-        dark: neonBlue[500],
+        ...redOrange,
+        light: redOrange[300],
+        main: redOrange[400],
+        dark: redOrange[500],
         contrastText: 'var(--mui-palette-common-black)',
       },
       secondary: {
@@ -102,10 +102,10 @@ export const colorSchemes = {
       },
       neutral: { ...stormGrey },
       primary: {
-        ...neonBlue,
-        light: neonBlue[400],
-        main: neonBlue[500],
-        dark: neonBlue[600],
+        ...redOrange,
+        light: redOrange[400],
+        main: redOrange[500],
+        dark: redOrange[600],
         contrastText: 'var(--mui-palette-common-white)',
       },
       secondary: {

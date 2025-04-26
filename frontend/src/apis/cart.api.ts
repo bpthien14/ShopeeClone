@@ -22,6 +22,7 @@ export interface Cart {
 
 // Add interface for checkout data
 export interface CheckoutData {
+  customerName:string
   shippingAddress: string;
 }
 

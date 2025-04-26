@@ -42,6 +42,7 @@ const clearCart = {
 
 const checkout = {
   body: Joi.object().keys({
+    customerName: Joi.string().required(),
     shippingAddress: Joi.string().required(),
     discountAmount: Joi.number().min(0).default(0),
     shippingAmount: Joi.number().min(0).default(0),

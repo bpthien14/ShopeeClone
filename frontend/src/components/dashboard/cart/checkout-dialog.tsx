@@ -9,6 +9,7 @@ import {
   Grid,
 } from '@mui/material';
 import { type CheckoutData } from '@/apis/cart.api';
+import { useUser } from '@/hooks/auth/use-user';
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -17,9 +18,19 @@ interface CheckoutDialogProps {
 }
 
 export function CheckoutDialog({ open, onClose, onCheckout }: CheckoutDialogProps) {
+  const {user} = useUser()
+
   const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({
+    customerName: '',
     shippingAddress: ''
   });
+
+  React.useEffect(() => {
+    if (user) setCheckoutData({
+      ...checkoutData,
+      customerName: user.name
+    })
+  },[user])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

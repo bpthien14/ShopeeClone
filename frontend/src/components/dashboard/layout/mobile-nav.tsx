@@ -31,18 +31,18 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
     <Drawer
       PaperProps={{
         sx: {
-          '--MobileNav-background': 'var(--mui-palette-neutral-950)',
+          '--MobileNav-background': 'var(--mui-palette-neutral-50)',
           '--MobileNav-color': 'var(--mui-palette-common-white)',
-          '--NavItem-color': 'var(--mui-palette-neutral-300)',
+          '--NavItem-color': 'var(--mui-palette-common-dark)',
           '--NavItem-hover-background': 'rgba(255, 255, 255, 0.04)',
           '--NavItem-active-background': 'var(--mui-palette-primary-main)',
           '--NavItem-active-color': 'var(--mui-palette-primary-contrastText)',
           '--NavItem-disabled-color': 'var(--mui-palette-neutral-500)',
-          '--NavItem-icon-color': 'var(--mui-palette-neutral-400)',
+          '--NavItem-icon-color': 'var(--mui-palette-common-dark)',
           '--NavItem-icon-active-color': 'var(--mui-palette-primary-contrastText)',
           '--NavItem-icon-disabled-color': 'var(--mui-palette-neutral-600)',
           bgcolor: 'var(--MobileNav-background)',
-          color: 'var(--MobileNav-color)',
+          color: 'var(--mui-palette-common-dark)',
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '100%',
@@ -57,7 +57,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
     >
       <Stack spacing={2} sx={{ p: 3 }}>
         <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-          <Logo color="light" height={32} width={122} />
+          <Logo color="light" height={32} width={100} />
         </Box>
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />

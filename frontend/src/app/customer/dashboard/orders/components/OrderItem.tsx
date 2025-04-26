@@ -27,7 +27,7 @@ export function OrderItem({ order, onCancelOrder }: OrderItemProps) {
           </button>
         </div>
         <div className="order-status">
-          <span className={`status-${order.status}`}>{order.status}</span>
+          {/* <span className={`status-${order.status}`}>{order.status}</span> */}
           <Info size={16} className="info-icon" />
           <span className="status-waiting">{getStatusLabel(String(order.status))}</span>
         </div>
@@ -37,11 +37,11 @@ export function OrderItem({ order, onCancelOrder }: OrderItemProps) {
         <div key={item.product} className="product-item">
           <div className="product-image">
             {item.photoUrls?.[0] && (
-              <Image 
-                src={item.photoUrls[0]} 
-                alt={item.name} 
-                width={96} 
-                height={96} 
+              <Image
+                src={item.photoUrls[0]}
+                alt={item.name}
+                width={96}
+                height={96}
                 className="object-cover"
               />
             )}
@@ -116,7 +116,11 @@ function getStatusLabel(status: string) {
       return 'ĐÃ GIAO'
     case 'cancelled':
       return 'ĐÃ HỦY'
+    case 'approved':
+      return 'ĐÃ XÁC NHẬN'
+    case 'completed':
+      return 'ĐÃ HOÀN THÀNH'
     default:
       return status.toUpperCase()
   }
-} 
+}

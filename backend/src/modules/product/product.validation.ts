@@ -2,7 +2,19 @@ import Joi from "joi";
 import { Order } from "../order";
 import { objectId } from "../validate";
 import  Product  from "./product.model";
+import { z } from 'zod'
 
+export const createProductSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z.number().min(0, "Price must be greater than 0"), // Match with frontend
+  comparePrice: z.number().min(0, "Compare price must be greater than 0"),
+  quantity: z.number().min(0, "Quantity must be greater than 0"), // Match with frontend
+  status: z.enum(['active', 'draft']),
+  photoUrls: z.array(z.string().url("Invalid URL format")).min(1, "At least one photo is required")
+})
+
+export type CreateProductInput = z.infer<typeof createProductSchema>
 
 const addReview = {
   params: Joi.object().keys({
@@ -64,4 +76,24 @@ const addReview = {
 
 export const productValidation = {
   addReview,
+  updateSingleProduct: {
+    params: z.object({
+      productId: z.string().min(1, 'Product ID is required')
+    }),
+    body: z.object({
+      name: z.string().min(1).optional(),
+      description: z.string().min(1).optional(),
+      price: z.number().min(0).optional(),
+      comparePrice: z.number().min(0).optional(),
+      quantity: z.number().min(0).optional(),
+      status: z.enum(['active', 'draft']).optional(),
+      photoUrls: z.array(z.string().url()).min(1).optional()
+    })
+  },
+
+  deleteOneProduct: {
+    params: z.object({
+      productId: z.string().min(1, 'Product ID is required')
+    })
+  }
 };

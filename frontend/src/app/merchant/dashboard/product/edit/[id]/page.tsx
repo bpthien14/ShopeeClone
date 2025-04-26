@@ -1,46 +1,46 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Button, Container, Grid, TextField, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
-import { createProduct } from '@/apis/product.api'
+import { getProductById, updateProduct } from '@/apis/product.api'
 
-export default function CreateProductPage() {
+export default function EditProductPage({ params }: { params: { id: string } }) {
     const router = useRouter()
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        price: '',
-        comparePrice: '',
-        quantity: '',
-        status: 'draft' as 'active' | 'draft',
+        price: 0,
+        comparePrice: 0,
+        quantity: 0,
+        status: 'draft' as 'draft' | 'active',
         photoUrls: ['']
     })
 
+    useEffect(() => {
+        const fetchProduct = async () => {
+            const product = await getProductById(params.id)
+            setFormData({
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                comparePrice: product.comparePrice,
+                quantity: product.quantity,
+                status: product.status,
+                photoUrls: product.photoUrls
+            })
+        }
+        fetchProduct()
+    }, [params.id])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        try {
-            await createProduct({
-                name: formData.name,
-                description: formData.description,
-                price: Number(formData.price),
-                comparePrice: Number(formData.comparePrice),
-                quantity: Number(formData.quantity),
-                status: formData.status,
-                photoUrls: formData.photoUrls.filter(url => url.trim() !== '')
-            })
-            router.push('/merchant/dashboard/product')
-        } catch (error) {
-            console.error('Error creating product:', error)
-        }
+        await updateProduct(params.id, formData)
+        router.push('/products')
     }
 
     const handlePhotoUrlChange = (index: number, value: string) => {
         const newPhotoUrls = [...formData.photoUrls]
         newPhotoUrls[index] = value
-        // Add new empty field when last field is filled
-        if (index === formData.photoUrls.length - 1 && value !== '') {
-            newPhotoUrls.push('')
-        }
         setFormData(prev => ({ ...prev, photoUrls: newPhotoUrls }))
     }
 
@@ -48,7 +48,7 @@ export default function CreateProductPage() {
         <Container maxWidth={false}>
             <Box sx={{ mt: 3 }}>
                 <Typography variant="h4" gutterBottom>
-                    Create New Product
+                    Edit Product
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
@@ -82,7 +82,7 @@ export default function CreateProductPage() {
                                 type="number"
                                 required
                                 value={formData.price}
-                                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -93,7 +93,7 @@ export default function CreateProductPage() {
                                 type="number"
                                 required
                                 value={formData.comparePrice}
-                                onChange={(e) => setFormData(prev => ({ ...prev, comparePrice: e.target.value }))}
+                                onChange={(e) => setFormData(prev => ({ ...prev, comparePrice: parseFloat(e.target.value) }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -104,14 +104,13 @@ export default function CreateProductPage() {
                                 type="number"
                                 required
                                 value={formData.quantity}
-                                onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                                onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) }))}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <FormControl fullWidth>
-                                <InputLabel id="status-label">Status</InputLabel>
+                                <InputLabel>Status</InputLabel>
                                 <Select
-                                    labelId="status-label"
                                     value={formData.status}
                                     label="Status"
                                     onChange={(e) => setFormData(prev => ({ 
@@ -124,6 +123,7 @@ export default function CreateProductPage() {
                                 </Select>
                             </FormControl>
                         </Grid>
+                        {/* Photo URLs section */}
                         <Grid item xs={12}>
                             <Typography variant="subtitle1" gutterBottom>
                                 Product Images
@@ -145,8 +145,16 @@ export default function CreateProductPage() {
                                 size="large"
                                 type="submit"
                                 variant="contained"
+                                sx={{ mr: 2 }}
                             >
-                                Create Product
+                                Update Product
+                            </Button>
+                            <Button
+                                color="inherit"
+                                size="large"
+                                onClick={() => router.back()}
+                            >
+                                Cancel
                             </Button>
                         </Grid>
                     </Grid>

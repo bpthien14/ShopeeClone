@@ -10,6 +10,8 @@ import { ApiError } from "../errors";
 import { catchAsync } from "../utils";
 import  Order  from "../order/order.model";
 import { IUserDoc } from '../user/user.interfaces';
+// import { CreateProductInput } from './product.validation';
+
 // import Order from './order.model';
 
 interface CustomRequest extends Request {
@@ -257,6 +259,22 @@ export const addReview = catchAsync(async (req: CustomRequest, res: Response) =>
     }
   });
 });
+
+export const createProductHandler = async (req: CustomRequest, res: Response) => {
+  if (!req.user?._id) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'User not authenticated');
+  }
+
+  const product = await ProductServices.createProductIntoDB({
+    ...req.body,
+    merchant: req.user._id,
+    ratings: [],
+    createdAt: undefined,
+    updatedAt: undefined
+  });
+  res.status(201).json(product);
+}
+
 export const ProductControllers = {
   createProduct,
   getAllProducts,
@@ -265,4 +283,5 @@ export const ProductControllers = {
   deleteOneProduct,
   // searchProduct,
   addReview,
+  createProductHandler,
 };

@@ -1,44 +1,71 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import NextLink from 'next/link'
-import useSWR from 'swr'
-import { AddOutlined} from '@mui/icons-material'
-import { Button, CardMedia, Chip, Grid, Link } from '@mui/material'
+import useSWR, { mutate } from 'swr'
+import { AddOutlined, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
+import { Button, CardMedia, Chip, Grid, Link, IconButton } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { Container, Typography, Box } from '@mui/material';
 import Layout from '../layout'
 import { FullScreenLoading } from '../../../../components/ui/fullScreenLoading'
 import { Product } from '@/apis/product.api'
 import axiosInstance from '@/apis/axios'
-
-const columns: GridColDef[] = [
-    {field: 'photoUrls', headerName: 'Image', width: 100, renderCell: (params) => (
-        <CardMedia
-            component='img'
-            alt={params.row.name}
-            image={params.row.photoUrls[0]}
-            sx={{ borderRadius: 1, height: 50, width: 50 }}
-        />
-    )},
-    {field: 'name', headerName: 'Name', width: 250, renderCell: (params) => (
-        <Link component={NextLink} href={`/merchant/product/${params.row._id}`} underline='always'>
-            {params.row.name}
-        </Link>
-    )},
-    {field: 'description', headerName: 'Description', width: 250},
-    {field: 'merchant', headerName: 'Merchant', width: 250},
-    {field: 'status', headerName: 'Status'},
-    {field: 'stockAmount', headerName: 'Stock Amount'},
-    {field: 'unitPrice', headerName: 'Unit Price'},
-    {field: 'comparePrice', headerName: 'Compare Price'},
-    {field: 'ratings', headerName: 'Ratings'},
-]
+import { useRouter } from 'next/navigation';
+import { deleteProduct } from '@/apis/product.api'
+import DeleteProductDialog from '../../../../components/dashboard/product/deleteDialog'
+import { toast } from 'react-toastify'
 
 // SWR fetcher function
 const fetcher = (url: string) => axiosInstance.get(url).then(res => res.data);
 
 export default function ProductPage(): React.JSX.Element {
     const {data, error} = useSWR<Product[]>('/products', fetcher)
+    const router = useRouter()
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [selectedProduct, setSelectedProduct] = useState<{id: string, name: string} | null>(null)
+
+    // Move columns definition inside component
+    const columns: GridColDef[] = useMemo(() => [
+        {field: 'photoUrls', headerName: 'Image', width: 100, renderCell: (params: { row: { name: string | undefined; photoUrls: (string | undefined)[] } }) => (
+            <CardMedia
+                component='img'
+                alt={params.row.name}
+                image={params.row.photoUrls[0]}
+                sx={{ borderRadius: 1, height: 50, width: 50 }}
+            />
+        )},
+        {field: 'name', headerName: 'Name', width: 250, renderCell: (params: { row: { _id: any; name: string | number | bigint | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<React.AwaitedReactNode> | null | undefined } }) => (
+            <Link component={NextLink} href={`/merchant/product/${params.row._id}`} underline='always'>
+                {params.row.name}
+            </Link>
+        )},
+        {field: 'description', headerName: 'Description', width: 250},
+        {field: 'merchant', headerName: 'Merchant', width: 250},
+        {field: 'status', headerName: 'Status'},
+        {field: 'stockAmount', headerName: 'Stock Amount'},
+        {field: 'unitPrice', headerName: 'Unit Price'},
+        {field: 'comparePrice', headerName: 'Compare Price'},
+        {field: 'ratings', headerName: 'Ratings'},
+        {field: 'actions', headerName: 'Actions', width: 150, renderCell: (params: { row: { _id: string, name: string } }) => (
+            <>
+                <IconButton 
+                    onClick={() => handleEdit(params.row._id)}
+                    color="primary"
+                >
+                    <EditIcon />
+                </IconButton>
+                <IconButton 
+                    onClick={() => handleDeleteClick({ 
+                        id: params.row._id, 
+                        name: params.row.name 
+                    })}
+                    color="error"
+                >
+                    <DeleteIcon />
+                </IconButton>
+            </>
+        )},
+    ], []) // Empty dependency array since these functions won't change
 
     const rows = useMemo(()=> { 
         if (data) {
@@ -60,6 +87,39 @@ export default function ProductPage(): React.JSX.Element {
         return [];
     }, [data]);
 
+    const handleCreateProduct = () => {
+        router.push('/merchant/dashboard/product/create');
+    }
+
+    const handleEdit = async (productId: string) => {
+        try {
+            router.push(`/merchant/dashboard/product/edit/${productId}`)
+        } catch (error) {
+            toast.error('Error navigating to edit page')
+            console.error('Error editing product:', error)
+        }
+    }
+
+    const handleDeleteClick = (product: {id: string, name: string}) => {
+        setSelectedProduct(product)
+        setDeleteDialogOpen(true)
+    }
+
+    const handleDeleteConfirm = async () => {
+        if (selectedProduct) {
+            try {
+                await deleteProduct(selectedProduct.id)
+                setDeleteDialogOpen(false)
+                toast.success('Product deleted successfully')
+                // Refresh data using SWR
+                mutate('/products')
+            } catch (error) {
+                toast.error('Error deleting product')
+                console.error('Error deleting product:', error)
+            }
+        }
+    }
+
     return ( 
         <Container maxWidth={false}>
             <Box sx={{ mt: 3 }}>
@@ -70,7 +130,7 @@ export default function ProductPage(): React.JSX.Element {
                         <Button
                             startIcon={<AddOutlined />}
                             color='secondary'
-                            href='/merchant/dashboard/product/create'
+                            onClick={handleCreateProduct}
                         >
                             Create Product
                         </Button>
@@ -93,6 +153,12 @@ export default function ProductPage(): React.JSX.Element {
                         )}    
                 </Typography>
             </Box>
+            <DeleteProductDialog
+                open={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                productName={selectedProduct?.name || ''}
+            />
         </Container>
     )
 }

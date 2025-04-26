@@ -15,9 +15,11 @@ router.post("/", auth(), ProductControllers.createProduct);
 router.put("/:productId", auth(), ProductControllers.updateSingleProduct);
 router.delete("/:productId", auth(), ProductControllers.deleteOneProduct);
 
+
 // Merchant dashboard route
 router.get("/merchant/dashboard/product", auth(), ProductControllers.getAllProducts);
-
+router.put("/merchant/dashboard/product/edit/:productId", auth(), ProductControllers.updateSingleProduct);
+router.delete("/merchant/dashboard/product/delete/:productId", auth(), ProductControllers.deleteOneProduct);
 router
   .route('/:productId/reviews')
   .post(

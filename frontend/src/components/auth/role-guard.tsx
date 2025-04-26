@@ -30,10 +30,10 @@ export function RoleGuard({ children }: RoleGuardProps): React.JSX.Element | nul
     if (user) {
       if (user.role === 'merchant' && pathname?.startsWith('/customer')) {
         router.replace(paths.merchant.dashboard);
+        return;
       } else if (user.role === 'customer' && pathname?.startsWith('/merchant')) {
         router.replace(paths.customer.dashboard);
-      } else {
-        router.replace(user.role === 'merchant' ? paths.merchant.dashboard : paths.customer.dashboard);
+        return;
       }
       // return;
     }

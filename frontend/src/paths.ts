@@ -11,6 +11,7 @@ export const paths = {
   },
   customer:{
     dashboard: '/customer/dashboard',
+    products: '/customer/dashboard/products',
     cart: '/customer/dashboard/cart',
     orders: '/customer/dashboard/orders',
     account: '/customer/dashboard/account',

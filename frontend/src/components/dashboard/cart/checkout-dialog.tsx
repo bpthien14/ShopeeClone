@@ -21,14 +21,12 @@ export function CheckoutDialog({ open, onClose, onCheckout }: CheckoutDialogProp
   const {user} = useUser()
 
   const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({
-    customerName: '',
     shippingAddress: ''
   });
 
   React.useEffect(() => {
     if (user) setCheckoutData({
-      ...checkoutData,
-      customerName: user.name
+      ...checkoutData
     })
   },[user])
 

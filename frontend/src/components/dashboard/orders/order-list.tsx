@@ -233,11 +233,11 @@ export function OrderList() {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Số dòng mỗi trang"
-          labelDisplayedRows={({ from, to, count }) =>
+          labelDisplayedRows={({ from, to, count }) => 
             `${from}-${to} trên ${count !== -1 ? count : `hơn ${to}`}`
           }
         />
       </TableContainer>
     </Box>
   );
-}
+} 

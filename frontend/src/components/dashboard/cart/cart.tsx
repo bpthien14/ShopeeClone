@@ -1,21 +1,24 @@
 'use client';
+
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
-  Typography,
+  Button,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  IconButton,
   TextField,
-  Button,
+  Typography,
 } from '@mui/material';
-import { Trash, Plus, Minus } from '@phosphor-icons/react';
+import { Minus, Plus, Trash } from '@phosphor-icons/react';
+
 import { useCart } from '@/contexts/cart-context';
+
 import { CheckoutDialog } from './checkout-dialog';
-import { useRouter } from 'next/navigation';
 
 interface ApiError {
   response?: {
@@ -57,33 +60,36 @@ export function Cart() {
 
   const handleQuantityChange = async (productId: string, quantity: number) => {
     try {
-      setItemErrors(prev => ({ ...prev, [productId]: '' }));
+      setItemErrors((prev) => ({ ...prev, [productId]: '' }));
       await updateItemQuantity(productId, quantity);
     } catch (err: unknown) {
-      const errorMessage = err && typeof err === 'object' && 'response' in err 
-        ? ((err as ApiError).response?.data?.message || 'Failed to update quantity')
-        : 'Failed to update quantity';
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as ApiError).response?.data?.message || 'Failed to update quantity'
+          : 'Failed to update quantity';
 
-      setItemErrors(prev => ({ 
-        ...prev, 
-        [productId]: errorMessage 
+      setItemErrors((prev) => ({
+        ...prev,
+        [productId]: errorMessage,
       }));
     }
   };
 
   const handleCheckout = async (checkoutData: CheckoutData) => {
     try {
-      // Only send shipping address
+      // Gửi đầy đủ dữ liệu bao gồm customerName
       await checkout({
-        shippingAddress: checkoutData.shippingAddress
+        customerName: checkoutData.customerName,
+        shippingAddress: checkoutData.shippingAddress,
       });
       setCheckoutOpen(false);
       router.push('/customer/dashboard/orders');
     } catch (err) {
       console.error('Checkout failed:', err);
-      const errorMessage = err && typeof err === 'object' && 'response' in err 
-        ? ((err as ApiError).response?.data?.message || 'Checkout failed')
-        : 'Checkout failed';
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as ApiError).response?.data?.message || 'Checkout failed'
+          : 'Checkout failed';
       alert(errorMessage);
     }
   };
@@ -109,12 +115,14 @@ export function Cart() {
             <TableRow key={item.productId}>
               <TableCell>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {item.photoUrl ? <Box
+                  {item.photoUrl ? (
+                    <Box
                       component="img"
                       src={item.photoUrl}
                       alt={item.productName}
                       sx={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 1 }}
-                    /> : null}
+                    />
+                  ) : null}
                   <Typography>{item.productName}</Typography>
                 </Box>
               </TableCell>
@@ -140,29 +148,24 @@ export function Cart() {
                         void handleQuantityChange(item.productId, value);
                       }
                     }}
-                    sx={{ 
-                      width: 60, 
+                    sx={{
+                      width: 60,
                       mx: 1,
                       '& .MuiFormHelperText-root': {
                         position: 'absolute',
                         bottom: -20,
-                        whiteSpace: 'nowrap'
-                      }
+                        whiteSpace: 'nowrap',
+                      },
                     }}
                     error={Boolean(itemErrors[item.productId])}
                     helperText={itemErrors[item.productId]}
                   />
-                  <IconButton
-                    size="small"
-                    onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
-                  >
+                  <IconButton size="small" onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}>
                     <Plus />
                   </IconButton>
                 </Box>
               </TableCell>
-              <TableCell align="right">
-                ${(item.price * item.quantity).toFixed(2)}
-              </TableCell>
+              <TableCell align="right">${(item.price * item.quantity).toFixed(2)}</TableCell>
               <TableCell align="right">
                 <IconButton onClick={() => removeItem(item.productId)} color="error">
                   <Trash />
@@ -182,17 +185,21 @@ export function Cart() {
         </TableBody>
       </Table>
       <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           color="primary"
-          onClick={() => { setCheckoutOpen(true); }}
+          onClick={() => {
+            setCheckoutOpen(true);
+          }}
         >
           Proceed to Checkout
         </Button>
       </Box>
       <CheckoutDialog
         open={checkoutOpen}
-        onClose={() => { setCheckoutOpen(false); }}
+        onClose={() => {
+          setCheckoutOpen(false);
+        }}
         onCheckout={handleCheckout}
       />
     </Box>

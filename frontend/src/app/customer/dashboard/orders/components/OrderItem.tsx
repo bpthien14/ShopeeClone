@@ -60,8 +60,7 @@ export function OrderItem({ order, onCancelOrder }: OrderItemProps) {
 
       <div className="order-footer">
         <p className="order-note">
-          Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao đến bạn và sản phẩm nhận được không có vấn đề
-          nào.
+          Vui lòng nhấn "Liên hệ người bán" nếu muốn có thêm thông tin về đơn hàng này. Nếu bạn không nhận được hàng trong thời gian quy định, vui lòng liên hệ với người bán để biết thêm thông tin.
         </p>
         <div className="order-total">
           <span className="total-label">Tổng số tiền:</span>

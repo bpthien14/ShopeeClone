@@ -41,7 +41,7 @@ export function CheckoutDialog({ open, onClose, onCheckout }: CheckoutDialogProp
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={3}>
-            <Grid xs={12}>
+            <Grid item xs={12}>
               <TextField
                 label="Shipping Address"
                 fullWidth
@@ -61,7 +61,9 @@ export function CheckoutDialog({ open, onClose, onCheckout }: CheckoutDialogProp
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button type="submit" variant="contained" color="primary">
             Place Order
           </Button>
